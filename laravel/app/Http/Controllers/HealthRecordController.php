@@ -2,47 +2,48 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HealthRecord;
 use Illuminate\Http\Request;
 
 class HealthRecordController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return HealthRecord::all();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $record = HealthRecord::create($request->all());
+        return response()->json($record, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(HealthRecord $healthRecord)
     {
-        //
+        return $healthRecord;
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, HealthRecord $healthRecord)
     {
-        //
+        $healthRecord->update($request->all());
+        return response()->json($healthRecord, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(HealthRecord $healthRecord)
     {
-        //
+        $healthRecord->delete();
+        return response()->json(null, 204);
     }
+    public function indexForPet($petId)
+{
+    $records = \App\Models\HealthRecord::where('pet_id',$petId)->get();
+    return response()->json($records, 200);
+}
+
+public function storeForPet(Request $request, $petId)
+{
+    $request->merge(['pet_id' => $petId]);
+    return $this->store($request);
+}
+
 }
