@@ -10,7 +10,7 @@ class Pet extends Model
     'user_id', 'name', 'species', 'breed', 'age', 'photo_path',
 ];
 
-    public function user()
+public function user()
 {
     return $this->belongsTo(User::class);
 }

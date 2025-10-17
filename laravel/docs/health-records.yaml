@@ -1,0 +1,178 @@
+openapi: 3.0.3
+info:
+  title: HealthRecord API
+  version: 1.0.0
+  description: API for managing health records of pets
+
+paths:
+  /health-records:
+    get:
+      summary: Get all health records
+      tags:
+        - HealthRecord
+      responses:
+        '200':
+          description: List of all health records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HealthRecord'
+    post:
+      summary: Create a new health record
+      tags:
+        - HealthRecord
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthRecordInput'
+      responses:
+        '201':
+          description: Health record created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+
+  /health-records/{id}:
+    get:
+      summary: Get a specific health record
+      tags:
+        - HealthRecord
+      parameters:
+        - name: id
+          in: path
+          description: Health record ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Health record details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+        '404':
+          description: Health record not found
+    put:
+      summary: Update a specific health record
+      tags:
+        - HealthRecord
+      parameters:
+        - name: id
+          in: path
+          description: Health record ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthRecordInput'
+      responses:
+        '200':
+          description: Health record updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+        '404':
+          description: Health record not found
+    delete:
+      summary: Delete a specific health record
+      tags:
+        - HealthRecord
+      parameters:
+        - name: id
+          in: path
+          description: Health record ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Health record deleted successfully
+        '404':
+          description: Health record not found
+
+  /pets/{petId}/health-records:
+    get:
+      summary: Get all health records for a specific pet
+      tags:
+        - HealthRecord
+      parameters:
+        - name: petId
+          in: path
+          description: Pet ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of health records for the pet
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HealthRecord'
+    post:
+      summary: Create a health record for a specific pet
+      tags:
+        - HealthRecord
+      parameters:
+        - name: petId
+          in: path
+          description: Pet ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthRecordInput'
+      responses:
+        '201':
+          description: Health record created successfully for the pet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthRecord'
+
+components:
+  schemas:
+    HealthRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        pet_id:
+          type: integer
+        description:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - pet_id
+        - description
+
+    HealthRecordInput:
+      type: object
+      properties:
+        description:
+          type: string
+      required:
+        - description

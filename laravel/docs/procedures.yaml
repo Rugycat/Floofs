@@ -1,0 +1,233 @@
+openapi: 3.0.3
+info:
+  title: Procedure API
+  version: 1.0.0
+  description: API for managing procedures linked to health records
+
+paths:
+  /procedures:
+    get:
+      summary: Get all procedures
+      tags:
+        - Procedure
+      responses:
+        '200':
+          description: List of all procedures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Procedure'
+    post:
+      summary: Create a new procedure
+      tags:
+        - Procedure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcedureInput'
+      responses:
+        '201':
+          description: Procedure created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Procedure'
+
+  /procedures/{id}:
+    get:
+      summary: Get a specific procedure
+      tags:
+        - Procedure
+      parameters:
+        - name: id
+          in: path
+          description: Procedure ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Procedure details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Procedure'
+        '404':
+          description: Procedure not found
+    put:
+      summary: Update a specific procedure
+      tags:
+        - Procedure
+      parameters:
+        - name: id
+          in: path
+          description: Procedure ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcedureUpdateInput'
+      responses:
+        '200':
+          description: Procedure updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Procedure'
+        '404':
+          description: Procedure not found
+    delete:
+      summary: Delete a specific procedure
+      tags:
+        - Procedure
+      parameters:
+        - name: id
+          in: path
+          description: Procedure ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Procedure deleted successfully
+        '404':
+          description: Procedure not found
+
+  /health-records/{recordId}/procedures:
+    get:
+      summary: Get procedures for a specific health record
+      tags:
+        - Procedure
+      parameters:
+        - name: recordId
+          in: path
+          description: Health record ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of procedures for the health record
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Procedure'
+    post:
+      summary: Create a procedure for a specific health record
+      tags:
+        - Procedure
+      parameters:
+        - name: recordId
+          in: path
+          description: Health record ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcedureInputWithoutHealthRecord'
+      responses:
+        '201':
+          description: Procedure created successfully for the health record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Procedure'
+
+components:
+  schemas:
+    Procedure:
+      type: object
+      properties:
+        id:
+          type: integer
+        health_record_id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          type: string
+          enum: [planned, done, canceled]
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - health_record_id
+        - title
+
+    ProcedureInput:
+      type: object
+      properties:
+        health_record_id:
+          type: integer
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [planned, done, canceled]
+      required:
+        - health_record_id
+        - title
+
+    ProcedureInputWithoutHealthRecord:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [planned, done, canceled]
+      required:
+        - title
+
+    ProcedureUpdateInput:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [planned, done, canceled]
