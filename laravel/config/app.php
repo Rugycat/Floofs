@@ -133,7 +133,7 @@ return [
     Illuminate\Cache\CacheServiceProvider::class,
     Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
     Illuminate\Cookie\CookieServiceProvider::class,
-    Illuminate\Database\DatabaseServiceProvider::class, // essential for 'db'
+    Illuminate\Database\DatabaseServiceProvider::class,
     Illuminate\Encryption\EncryptionServiceProvider::class,
     Illuminate\Filesystem\FilesystemServiceProvider::class,
     Illuminate\Foundation\Providers\FoundationServiceProvider::class,
@@ -150,7 +150,12 @@ return [
     Illuminate\Routing\RoutingServiceProvider::class,
 
     /*
-     * Application Service Providers...
+     * 3rd party
+     */
+    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+
+    /*
+     * Application Service Providers
      */
     App\Providers\AppServiceProvider::class,
     App\Providers\RouteServiceProvider::class,
