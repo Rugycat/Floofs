@@ -11,8 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
-    })
+
+    // Sukuriame middleware alias
+    $middleware->alias([
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'auth' => \App\Http\Middleware\Authenticate::class,
+    ]);
+
+})
+
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();

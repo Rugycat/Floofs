@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
@@ -13,10 +16,30 @@ class AuthController extends Controller
      *
      * @return void
      */
-    public function __construct()
+   # public function __construct()
+   # {
+   #     $this->middleware('auth:api', ['except' => ['login']]);
+   # }
+
+    public function register(Request $request)
     {
-        $this->middleware('auth:api', ['except' => ['login']]);
+        $data = $request->validate([
+            'name'     => 'required|string',
+            'email'    => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'role'     => 'nullable|string|in:user,admin'
+        ]);
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'role' => $data['role'] ?? 'user',
+        ]);
+
+        return response()->json($user, 201);
     }
+
 
     /**
      * Get a JWT token via given credentials.
@@ -53,10 +76,14 @@ class AuthController extends Controller
      */
     public function logout()
     {
+    try {
         $this->guard()->logout();
-
         return response()->json(['message' => 'Successfully logged out']);
+    } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+        return response()->json(['error' => 'Token missing or invalid'], 401);
     }
+    }
+
 
     /**
      * Refresh a token.
@@ -90,7 +117,8 @@ class AuthController extends Controller
      * @return \Illuminate\Contracts\Auth\Guard
      */
     public function guard()
-    {
-        return Auth::guard();
-    }
+{
+    return Auth::guard('api');
+}
+
 }

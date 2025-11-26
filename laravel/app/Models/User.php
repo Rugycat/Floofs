@@ -22,6 +22,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
@@ -62,8 +63,11 @@ class User extends Authenticatable implements JWTSubject
      * @return array
      */
     public function getJWTCustomClaims()
-    {
-        return [];
-    }
+{
+    return [
+        'role' => $this->role
+    ];
+}
+
 
 }

@@ -1,42 +1,43 @@
 <?php
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PetController;
 use App\Http\Controllers\HealthRecordController;
 use App\Http\Controllers\ProcedureController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\AuthController;
 
-Route::group([
-    'middleware' => 'api',
-    'prefix' => 'auth'
-], function () {
+
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
-    Route::post('refresh', [AuthController::class, 'refresh']);
-    Route::post('me', [AuthController::class, 'me']);
+
+    Route::middleware('auth:api')->group(function () {
+        Route::post('logout', [AuthController::class, 'logout']);
+        Route::post('refresh', [AuthController::class, 'refresh']);
+        Route::post('me', [AuthController::class, 'me']);
+    });
 });
 
+// Visi JWT apsaugoti route'ai
+Route::middleware('auth:api')->group(function () {
 
+    // Tik ADMIN gali valdyti vartotojus
+    Route::middleware('role:admin')->group(function () {
+        Route::apiResource('users', UserController::class);
+    });
 
+    // Visi naudotojai su galiojančiu JWT gali valdyti gyvūnus
+    Route::apiResource('pets', PetController::class);
+    Route::get('users/{userId}/pets', [PetController::class, 'index']);
+    Route::post('users/{userId}/pets', [PetController::class, 'store']);
 
+    Route::apiResource('health-records', HealthRecordController::class);
+    Route::get('/pets/{petId}/health-records', [HealthRecordController::class, 'indexForPet']);
+    Route::post('/pets/{petId}/health-records', [HealthRecordController::class, 'storeForPet']);
 
-#Route::apiResource('users', UserController::class);
+    Route::apiResource('procedures', ProcedureController::class);
+    Route::get('/health-records/{recordId}/procedures', [ProcedureController::class, 'indexForRecord']);
+    Route::post('/health-records/{recordId}/procedures', [ProcedureController::class, 'storeForRecord']);
 
-// pets (CRUD + list)
-Route::apiResource('pets', PetController::class);
-// hierarchical pets per user
-Route::get('users/{userId}/pets', [PetController::class, 'index']);
-Route::post('users/{userId}/pets', [PetController::class, 'store']);
+});
 
-
-// health-records (single-level CRUD)
-Route::apiResource('health-records', HealthRecordController::class);
-// hierarchical health-records per pet
-Route::get('/pets/{petId}/health-records', [HealthRecordController::class, 'indexForPet']);
-Route::post('/pets/{petId}/health-records', [HealthRecordController::class, 'storeForPet']);
-
-// procedures CRUD (single)
-Route::apiResource('procedures', ProcedureController::class);
-// hierarchical procedures per health-record
-Route::get('/health-records/{recordId}/procedures', [ProcedureController::class, 'indexForRecord']);
-Route::post('/health-records/{recordId}/procedures', [ProcedureController::class, 'storeForRecord']);
 
