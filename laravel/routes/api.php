@@ -50,3 +50,8 @@ Route::get('/db-test', function () {
     return DB::select('select current_database(), current_schema()');
 });
 
+// routes/api.php
+Route::get('/debug/add-role-column', function () {
+    DB::statement("ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'user'");
+    return "role column added!";
+});
