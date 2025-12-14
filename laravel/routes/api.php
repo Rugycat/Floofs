@@ -39,5 +39,8 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/health-records/{recordId}/procedures', [ProcedureController::class, 'storeForRecord']);
 
 });
+Route::apiResource('pets', PetController::class);
+    Route::get('users/{userId}/pets', [PetController::class, 'index']);
+    Route::post('users/{userId}/pets', [PetController::class, 'store']);
 
 
