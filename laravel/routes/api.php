@@ -39,19 +39,3 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/health-records/{recordId}/procedures', [ProcedureController::class, 'storeForRecord']);
 
 });
-Route::get('/debug/users', function () {
-    return DB::table('users')->get();
-});
-Route::get('/debug/pets', function () {
-    return \App\Models\Pet::with('user')->get();
-});
-
-Route::get('/db-test', function () {
-    return DB::select('select current_database(), current_schema()');
-});
-
-// routes/api.php
-Route::get('/debug/add-role-column', function () {
-    DB::statement("ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'user'");
-    return "role column added!";
-});
