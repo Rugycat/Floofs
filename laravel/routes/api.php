@@ -39,9 +39,12 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/health-records/{recordId}/procedures', [ProcedureController::class, 'storeForRecord']);
 
 });
-Route::apiResource('pets', PetController::class);
-    Route::get('users/{userId}/pets', [PetController::class, 'index']);
-    Route::post('users/{userId}/pets', [PetController::class, 'store']);
+Route::get('/debug/users', function () {
+    return DB::table('users')->get();
+});
+Route::get('/debug/pets', function () {
+    return \App\Models\Pet::with('user')->get();
+});
 
 Route::get('/db-test', function () {
     return DB::select('select current_database(), current_schema()');
