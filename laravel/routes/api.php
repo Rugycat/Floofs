@@ -43,4 +43,7 @@ Route::apiResource('pets', PetController::class);
     Route::get('users/{userId}/pets', [PetController::class, 'index']);
     Route::post('users/{userId}/pets', [PetController::class, 'store']);
 
+Route::get('/db-test', function () {
+    return DB::select('select current_database(), current_schema()');
+});
 
