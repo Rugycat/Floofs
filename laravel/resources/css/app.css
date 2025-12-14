@@ -9,3 +9,57 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background: #1f2937;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    list-style: none;
+}
+
+.nav-links li a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.nav-links li a:hover {
+    color: #6366f1;
+}
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+}
+
+main {
+    padding: 2rem;
+    background: #f3f4f6;
+    min-height: 80vh;
+}
+
+footer {
+    background: #111827;
+    color: #ccc;
+    text-align: center;
+    padding: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-links { display: none; flex-direction: column; background: #1f2937; position: absolute; top: 60px; right: 0; width: 200px; padding: 1rem; }
+    .hamburger { display: block; }
+}
