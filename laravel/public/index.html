@@ -1255,6 +1255,550 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script>
+        // API Configuration
+        const API_URL = 'https://floofs-web.onrender.com/api';
+        let authToken = localStorage.getItem('auth_token');
+        let currentUser = null;
+
+        // Initialize App
+        function init() {
+            setupEventListeners();
+            if (authToken) {
+                validateToken();
+            }
+        }
+
+        // Setup Event Listeners
+        function setupEventListeners() {
+            // Mobile Menu Toggle
+            document.getElementById('menuToggle').addEventListener('click', () => {
+                document.getElementById('headerNav').classList.toggle('active');
+            });
+
+            // Modal Triggers
+            document.getElementById('btnLogin').addEventListener('click', () => openModal('loginModal'));
+            document.getElementById('btnRegister').addEventListener('click', () => openModal('registerModal'));
+
+            // Modal Close Buttons
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-close').dataset.modal));
+            });
+
+            // Modal Footer Close Buttons
+            document.querySelectorAll('.modal-footer [data-modal]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    closeModal(e.target.dataset.modal);
+                });
+            });
+
+            // Forms
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('addPetForm').addEventListener('submit', handleAddPet);
+            document.getElementById('addHealthForm').addEventListener('submit', handleAddHealth);
+            document.getElementById('addProcedureForm').addEventListener('submit', handleAddProcedure);
+
+            // Button Toggles
+            document.getElementById('btnAddPet').addEventListener('click', () => {
+                document.getElementById('addPetSection').style.display = 
+                    document.getElementById('addPetSection').style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.getElementById('btnCancelPet').addEventListener('click', () => {
+                document.getElementById('addPetSection').style.display = 'none';
+                document.getElementById('addPetForm').reset();
+            });
+
+            document.getElementById('btnAddHealth').addEventListener('click', () => {
+                document.getElementById('addHealthSection').style.display = 
+                    document.getElementById('addHealthSection').style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.getElementById('btnCancelHealth').addEventListener('click', () => {
+                document.getElementById('addHealthSection').style.display = 'none';
+                document.getElementById('addHealthForm').reset();
+            });
+
+            document.getElementById('btnAddProcedure').addEventListener('click', () => {
+                document.getElementById('addProcedureSection').style.display = 
+                    document.getElementById('addProcedureSection').style.display === 'none' ? 'block' : 'none';
+            });
+
+            document.getElementById('btnCancelProcedure').addEventListener('click', () => {
+                document.getElementById('addProcedureSection').style.display = 'none';
+                document.getElementById('addProcedureForm').reset();
+            });
+
+            // Refresh Button
+            document.getElementById('btnRefreshPets').addEventListener('click', loadPets);
+        }
+
+        // Modal Functions
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Authentication Functions
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.access_token;
+                    localStorage.setItem('auth_token', authToken);
+                    showAlert('Sėkmingai prisijungta!', 'success');
+                    closeModal('loginModal');
+                    loadUserData();
+                    document.getElementById('loginForm').reset();
+                } else {
+                    showAlert('Neteisingi prisijungimo duomenys', 'error');
+                }
+            } catch (error) {
+                showAlert('Prisijungimo klaida', 'error');
+                console.error(error);
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            console.log('Register form submitted'); // Debug log
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+            // Validation
+            if (!name || !email || !password || !passwordConfirm) {
+                showAlert('Prašome užpildyti visus laukus', 'error');
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                showAlert('Slaptažodžiai nesutampa', 'error');
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert('Slaptažodis turi būti bent 6 simboliai ilgio', 'error');
+                return;
+            }
+
+            try {
+                console.log('Sending registration request to:', `${API_URL}/auth/register`);
+                
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name.trim(),
+                        email: email.trim(),
+                        password: password,
+                        role: 'user'
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Registration response:', response.status, data);
+                
+                if (response.ok) {
+                    showAlert('Registracija sėkminga! Dabar prisijunkite.', 'success');
+                    closeModal('registerModal');
+                    document.getElementById('registerForm').reset();
+                    openModal('loginModal');
+                } else {
+                    // Handle validation errors or duplicate email
+                    const errorMessage = data.error || data.message || 'Registracijos klaida';
+                    showAlert(errorMessage, 'error');
+                    console.error('Registration error:', data);
+                }
+            } catch (error) {
+                showAlert('Registracijos klaida: ' + error.message, 'error');
+                console.error('Registration fetch error:', error);
+            }
+        }
+
+        async function validateToken() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    loadUserData();
+                } else {
+                    logout();
+                }
+            } catch (error) {
+                console.error('Token validation error:', error);
+            }
+        }
+
+        async function loadUserData() {
+            if (!authToken) return;
+            loadPets();
+        }
+
+        // Pet Functions
+        async function loadPets() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_URL}/pets`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const pets = await response.json();
+                    displayPets(pets);
+                    updateHealthRecordSelect(pets);
+                }
+            } catch (error) {
+                console.error('Error loading pets:', error);
+            }
+        }
+
+        function displayPets(pets) {
+            const petsList = document.getElementById('petsList');
+            
+            if (pets.length === 0) {
+                petsList.innerHTML = `
+                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                        Jūs neturite registruotų gyvūnų.
+                    </p>
+                `;
+                return;
+            }
+
+            petsList.innerHTML = pets.map(pet => `
+                <div class="pet-item" data-pet-id="${pet.id}">
+                    <div class="pet-avatar">
+                        <i class="fas fa-${getAnimalIcon(pet.species)}"></i>
+                    </div>
+                    <div class="pet-info">
+                        <h3>${pet.name}</h3>
+                        <p>${pet.species}${pet.breed ? ' - ' + pet.breed : ''} • Amžius: ${pet.age} metai</p>
+                    </div>
+                    <div class="pet-actions">
+                        <button class="btn-action btn-primary" onclick="loadHealthRecords(${pet.id})">
+                            <i class="fas fa-heartbeat"></i> Sveikata
+                        </button>
+                        <button class="btn-action btn-secondary" onclick="editPet(${pet.id})">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-action btn-danger" onclick="deletePet(${pet.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function handleAddPet(e) {
+            e.preventDefault();
+            
+            const pet = {
+                user_id: currentUser.id,
+                name: document.getElementById('petName').value,
+                species: document.getElementById('petSpecies').value,
+                breed: document.getElementById('petBreed').value || null,
+                age: parseInt(document.getElementById('petAge').value),
+                photo_path: document.getElementById('petPhoto').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/pets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(pet)
+                });
+
+                if (response.ok) {
+                    showAlert('Gyvūnas sėkmingai pridėtas!', 'success');
+                    document.getElementById('addPetSection').style.display = 'none';
+                    document.getElementById('addPetForm').reset();
+                    loadPets();
+                } else {
+                    showAlert('Klaida pridėjant gyvūnį', 'error');
+                }
+            } catch (error) {
+                showAlert('Klaida pridėjant gyvūnį', 'error');
+                console.error(error);
+            }
+        }
+
+        async function deletePet(petId) {
+            if (!confirm('Ar tikrai norite ištrinti šį gyvūnį?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/pets/${petId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Gyvūnas ištrintas', 'success');
+                    loadPets();
+                }
+            } catch (error) {
+                showAlert('Klaida trinant gyvūnį', 'error');
+            }
+        }
+
+        function getAnimalIcon(species) {
+            const icons = {
+                'Šuo': 'dog',
+                'Katė': 'cat',
+                'Triušis': 'rabbit',
+                'Žiurkė': 'mouse',
+                'Paukštis': 'dove'
+            };
+            return icons[species] || 'paw';
+        }
+
+        // Health Record Functions
+        async function loadHealthRecords(petId) {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_URL}/pets/${petId}/health-records`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const records = await response.json();
+                    displayHealthRecords(records);
+                    document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
+                }
+            } catch (error) {
+                console.error('Error loading health records:', error);
+            }
+        }
+
+        function displayHealthRecords(records) {
+            const container = document.getElementById('healthRecordsList');
+            
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                        <i class="fas fa-file-medical" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                        Nėra sveikatos įrašų.
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = records.map(record => `
+                <div class="health-record">
+                    <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> Sveikatos įrašas #${record.id}</h4>
+                    <p><strong>Svoris:</strong> ${record.weight ? record.weight + ' kg' : 'Nenurodyta'}</p>
+                    <p><strong>Skiepai:</strong> ${record.vaccines || 'Nenurodyta'}</p>
+                    <p><strong>Ligų istorija:</strong> ${record.illness_history || 'Nenurodyta'}</p>
+                    <p><strong>Rekomendacijos:</strong> ${record.recommendations || 'Nenurodyta'}</p>
+                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
+                        <i class="fas fa-calendar"></i> ${new Date(record.created_at).toLocaleDateString('lt-LT')}
+                    </p>
+                </div>
+            `).join('');
+        }
+
+        function updateHealthRecordSelect(pets) {
+            const select = document.getElementById('healthPet');
+            select.innerHTML = '<option value="">Pasirinkite gyvūnį</option>' + 
+                pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
+        }
+
+        async function handleAddHealth(e) {
+            e.preventDefault();
+            
+            const health = {
+                pet_id: document.getElementById('healthPet').value,
+                weight: document.getElementById('healthWeight').value || null,
+                vaccines: document.getElementById('healthVaccines').value || null,
+                illness_history: document.getElementById('healthIllness').value || null,
+                recommendations: document.getElementById('healthRecommendations').value || null
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/health-records`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(health)
+                });
+
+                if (response.ok) {
+                    showAlert('Sveikatos įrašas sėkmingai pridėtas!', 'success');
+                    document.getElementById('addHealthSection').style.display = 'none';
+                    document.getElementById('addHealthForm').reset();
+                    const petId = document.getElementById('healthPet').value;
+                    if (petId) loadHealthRecords(petId);
+                } else {
+                    showAlert('Klaida pridėjant sveikatos įrašą', 'error');
+                }
+            } catch (error) {
+                showAlert('Klaida pridėjant sveikatos įrašą', 'error');
+                console.error(error);
+            }
+        }
+
+        // Procedure Functions
+        async function handleAddProcedure(e) {
+            e.preventDefault();
+            
+            const procedure = {
+                health_record_id: document.getElementById('procHealthRecord').value,
+                title: document.getElementById('procTitle').value,
+                description: document.getElementById('procDescription').value || null,
+                scheduled_at: document.getElementById('procDate').value || null,
+                status: document.getElementById('procStatus').value
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/procedures`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(procedure)
+                });
+
+                if (response.ok) {
+                    showAlert('Procedūra sėkmingai pridėta!', 'success');
+                    document.getElementById('addProcedureSection').style.display = 'none';
+                    document.getElementById('addProcedureForm').reset();
+                    loadProcedures();
+                } else {
+                    showAlert('Klaida pridėjant procedūrą', 'error');
+                }
+            } catch (error) {
+                showAlert('Klaida pridėjant procedūrą', 'error');
+                console.error(error);
+            }
+        }
+
+        async function loadProcedures() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_URL}/procedures`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const procedures = await response.json();
+                    displayProcedures(procedures);
+                    updateProcedureSelect();
+                }
+            } catch (error) {
+                console.error('Error loading procedures:', error);
+            }
+        }
+
+        function displayProcedures(procedures) {
+            const container = document.getElementById('proceduresList');
+            
+            if (procedures.length === 0) {
+                container.innerHTML = `
+                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                        <i class="fas fa-tasks" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                        Nėra procedūrų.
+                    </p>
+                `;
+                return;
+            }
+
+            container.innerHTML = procedures.map(proc => {
+                const statusClass = {
+                    'planned': 'badge-info',
+                    'done': 'badge-success',
+                    'canceled': 'badge-danger'
+                }[proc.status] || 'badge-info';
+
+                const statusText = {
+                    'planned': 'Numatyta',
+                    'done': 'Baigta',
+                    'canceled': 'Atšaukta'
+                }[proc.status] || proc.status;
+
+                return `
+                    <div class="procedure-item">
+                        <div class="procedure-info">
+                            <h5>${proc.title}</h5>
+                            <p>${proc.description || 'Nėra aprašymo'}</p>
+                            ${proc.scheduled_at ? `<p><i class="fas fa-calendar"></i> ${new Date(proc.scheduled_at).toLocaleDateString('lt-LT')}</p>` : ''}
+                        </div>
+                        <span class="badge ${statusClass}">${statusText}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateProcedureSelect() {
+            const select = document.getElementById('procHealthRecord');
+            // This would be populated from health records
+        }
+
+        // Utility Functions
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="${icons[type]}"></i>
+                <span>${message}</span>
+            `;
+
+            alertContainer.appendChild(alert);
+
+            setTimeout(() => {
+                alert.style.animation = 'fadeOut 0.3s ease-out';
+                setTimeout(() => alert.remove(), 300);
+            }, 4000);
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            localStorage.removeItem('auth_token');
+            location.reload();
+        }
+
+        // Initialize
+        init();
+    </script>
 </body>
 </html>
