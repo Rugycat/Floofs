@@ -2,7 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', function () {
-    return response()->json(['message' => 'Please use /auth/login (POST)'], 400);
-})->name('login.web');
+Route::get('/', function () {
+    return view('welcome'); // arba tiesiog atidaryti failą
+});
 
+// Fallback - Visos nuorodos (pvz /pets, /health) grąžina HTML
+Route::fallback(function () {
+    return file_get_contents(public_path('index.html'));
+});
