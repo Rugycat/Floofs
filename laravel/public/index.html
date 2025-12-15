@@ -873,7 +873,7 @@
             </button>
             <nav class="header-nav" id="headerNav">
                 <a href="#dashboard">Pradžia</a>
-                <a href="#pets">Mano gyvūnai</a>
+                <a href="#pets">Mano augintiniai</a>
                 <a href="#health">Sveikata</a>
                 <a href="#procedures">Procedūros</a>
                 <a href="#about">Apie</a>
@@ -900,7 +900,7 @@
                             Sveiki sugrįžę į Floofs
                         </div>
                         <div class="card-actions">
-                            <button class="btn-icon" id="btnAddPet" title="Pridėti gyvūnį">
+                            <button class="btn-icon" id="btnAddPet" title="Pridėti augintinį">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
@@ -914,11 +914,11 @@
                 <div class="card">
                     <div class="card-title">
                         <i class="fas fa-paw"></i>
-                        Gyvūnai
+                        Augintiniai
                     </div>
                     <div style="margin-top: 1rem;">
                         <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">0</div>
-                        <p style="color: var(--text-secondary);">Registruoti gyvūnai</p>
+                        <p style="color: var(--text-secondary);">Registruoti augintiniai</p>
                     </div>
                 </div>
 
@@ -954,7 +954,7 @@
                 <div class="card-header">
                     <div class="card-title">
                         <i class="fas fa-cat"></i>
-                        Mano gyvūnai
+                        Mano augintiniai
                     </div>
                     <div class="card-actions">
                         <button class="btn-icon" id="btnRefreshPets" title="Atnaujinti">
@@ -965,7 +965,7 @@
                 <div class="pet-list" id="petsList">
                     <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
                         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Jūs neturite registruotų gyvūnų. Pradėkite nuo naujo gyvūnio pridėjimo!
+                        Jūs neturite registruotų augintinių. Pradėkite nuo naujo augintinio pridėjimo!
                     </p>
                 </div>
             </div>
@@ -977,13 +977,13 @@
                 <div class="card-header">
                     <div class="card-title">
                         <i class="fas fa-user-plus"></i>
-                        Pridėti naują gyvūnį
+                        Pridėti naują augintinį
                     </div>
                 </div>
                 <form id="addPetForm">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="petName" class="label-required">Gyvūno vardas</label>
+                            <label for="petName" class="label-required">Augintinio vardas</label>
                             <input type="text" id="petName" placeholder="pvz. Šarūnas" required>
                         </div>
                         <div class="form-group">
@@ -995,7 +995,7 @@
                                 <option value="Triušis">Triušis</option>
                                 <option value="Žiurkė">Žiurkė</option>
                                 <option value="Paukštis">Paukštis</option>
-                                <option value="Rūpestinga gyvūno rūšis">Kita</option>
+                                <option value="Kita">Kita</option>
                             </select>
                         </div>
                     </div>
@@ -1016,7 +1016,7 @@
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                         <button type="button" class="btn-action btn-secondary" id="btnCancelPet">Atšaukti</button>
                         <button type="submit" class="btn-action btn-primary">
-                            <i class="fas fa-save"></i> Išsaugoti gyvūnį
+                            <i class="fas fa-save"></i> Išsaugoti
                         </button>
                     </div>
                 </form>
@@ -1057,9 +1057,9 @@
                 </div>
                 <form id="addHealthForm">
                     <div class="form-group">
-                        <label for="healthPet" class="label-required">Gyvūnas</label>
+                        <label for="healthPet" class="label-required">Augintinis</label>
                         <select id="healthPet" required>
-                            <option value="">Pasirinkite gyvūnį</option>
+                            <option value="">Pasirinkite augintinį</option>
                         </select>
                     </div>
                     <div class="form-row">
@@ -1485,7 +1485,7 @@
                 petsList.innerHTML = `
                     <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
                         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Jūs neturite registruotų gyvūnų.
+                        Jūs neturite registruotų augintinių.
                     </p>
                 `;
                 return;
@@ -1519,7 +1519,6 @@
             e.preventDefault();
             
             const pet = {
-                user_id: currentUser.id,
                 name: document.getElementById('petName').value,
                 species: document.getElementById('petSpecies').value,
                 breed: document.getElementById('petBreed').value || null,
@@ -1538,21 +1537,21 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Gyvūnas sėkmingai pridėtas!', 'success');
+                    showAlert('Augintinis sėkmingai pridėtas!', 'success');
                     document.getElementById('addPetSection').style.display = 'none';
                     document.getElementById('addPetForm').reset();
                     loadPets();
                 } else {
-                    showAlert('Klaida pridėjant gyvūnį', 'error');
+                    showAlert('Klaida pridėjant augintinį', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida pridėjant gyvūnį', 'error');
+                showAlert('Klaida pridėjant augintinį', 'error');
                 console.error(error);
             }
         }
 
         async function deletePet(petId) {
-            if (!confirm('Ar tikrai norite ištrinti šį gyvūnį?')) return;
+            if (!confirm('Ar tikrai norite ištrinti šį augintinį?')) return;
 
             try {
                 const response = await fetch(`${API_URL}/pets/${petId}`, {
@@ -1561,11 +1560,11 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Gyvūnas ištrintas', 'success');
+                    showAlert('Augintinis ištrintas', 'success');
                     loadPets();
                 }
             } catch (error) {
-                showAlert('Klaida trinant gyvūnį', 'error');
+                showAlert('Klaida trinant augintinį', 'error');
             }
         }
 
@@ -1628,7 +1627,7 @@
 
         function updateHealthRecordSelect(pets) {
             const select = document.getElementById('healthPet');
-            select.innerHTML = '<option value="">Pasirinkite gyvūnį</option>' + 
+            select.innerHTML = '<option value="">Pasirinkite augintinį</option>' + 
                 pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
         }
 

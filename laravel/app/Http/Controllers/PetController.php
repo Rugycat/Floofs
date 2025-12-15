@@ -21,7 +21,7 @@ class PetController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
+            'user_id' => $request->user()->id,
             'name' => 'required|string|max:255',
             'species' => 'required|string|max:100',
             'age' => 'required|integer|min:0',
