@@ -11,31 +11,35 @@ document.getElementById("closeModal").onclick = () => modal.classList.add("hidde
 
 const API_URL = "https://floofs-web.onrender.com/api";
 
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+const loginForm = document.getElementById("loginForm");
 
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
+if (loginForm) {
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    });
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    const data = await res.json();
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
 
-    if (!res.ok) {
-      throw new Error(data.error || "Login failed");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      localStorage.setItem("token", data.access_token);
+      window.location.href = "index.html";
+    } catch (err) {
+      document.getElementById("error").innerText = err.message;
     }
-
-    localStorage.setItem("token", data.access_token);
-
-    alert("Logged in!");
-  } catch (err) {
-    document.getElementById("error").innerText = err.message;
-  }
-});
+  });
+}
