@@ -13,10 +13,7 @@ Route::prefix('auth')->group(function () {
     Route::middleware('auth:api')->group(function () {
         Route::post('logout', [AuthController::class, 'logout']);
         Route::post('refresh', [AuthController::class, 'refresh']);
-        Route::middleware('auth:sanctum')->get('/auth/me', function (Request $request) {
-    return response()->json($request->user());
-});
-
+        Route::post('me', [AuthController::class, 'me']);
     });
 });
 
