@@ -9,7 +9,7 @@ class HealthRecord extends Model
     protected $fillable = [
     'pet_id',
     'weight',
-    'vaccine',
+    'vaccines',
     'illness_history',
     'recommendations',
 ];

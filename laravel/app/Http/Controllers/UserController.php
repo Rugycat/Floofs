@@ -25,12 +25,10 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:6',
-            'role' => 'sometimes|string|in:user,admin',
         ]);
 
         // Hash password before saving
         $validated['password'] = Hash::make($validated['password']);
-        $validated['role'] = $validated['role'] ?? 'user';
 
         $user = User::create($validated);
         return response()->json($user, 201);
