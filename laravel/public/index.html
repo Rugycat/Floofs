@@ -1436,21 +1436,23 @@
         }
 
         async function validateToken() {
-            try {
-                const response = await fetch(`${API_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-
-                if (response.ok) {
-                    currentUser = await response.json();
-                    loadUserData();
-                } else {
-                    logout();
+            const response = await fetch(`${API_URL}/auth/me`, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}`,
+                    'Accept': 'application/json'
                 }
-            } catch (error) {
-                console.error('Token validation error:', error);
+            });
+
+            if (!response.ok) {
+                console.warn('Token invalid or expired');
+                logout();
+                return;
             }
+
+            const data = await response.json();
+            currentUser = data;
         }
+
 
         async function loadUserData() {
             if (!authToken) return;

@@ -19,17 +19,21 @@ class PetController extends Controller
      * Store a newly created pet.
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|integer|exists:users,id',
-            'name' => 'required|string|max:255',
-            'species' => 'required|string|max:100',
-            'age' => 'required|integer|min:0',
-        ]);
-
-        $pet = Pet::create($validated);
-        return response()->json($pet, 201);
-    }
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'species' => 'required|string|max:100',
+        'breed' => 'nullable|string|max:100',
+        'age' => 'required|integer|min:0',
+        'photo_path' => 'nullable|string',
+    ]);
+    
+    // Automatically associate with the authenticated user
+    $validated['user_id'] = auth()->id();
+    
+    $pet = Pet::create($validated);
+    return response()->json($pet, 201);
+}
 
     /**
      * Display the specified pet.
