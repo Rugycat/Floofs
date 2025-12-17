@@ -1199,6 +1199,8 @@
         </div>
     </div>
 
+    <!-- Replace the Register Modal in your HTML with this: -->
+
     <!-- Register Modal -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal">
@@ -1210,6 +1212,24 @@
             </div>
             <div class="modal-body">
                 <form id="registerForm">
+                    <div class="form-group">
+                        <label class="label-required">Registracijų tipas</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <label style="margin: 0; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 1rem; border: 2px solid var(--border); border-radius: 0.5rem; transition: var(--transition);" id="userTypeLabel" style="border-color: var(--primary);">
+                                <input type="radio" name="registerRole" value="user" checked required style="cursor: pointer;">
+                                <span style="font-weight: 600; color: var(--dark);">
+                                    <i class="fas fa-home"></i> Šeimininkas
+                                </span>
+                            </label>
+                            <label style="margin: 0; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 1rem; border: 2px solid var(--border); border-radius: 0.5rem; transition: var(--transition);" id="vetTypeLabel">
+                                <input type="radio" name="registerRole" value="vet" required style="cursor: pointer;">
+                                <span style="font-weight: 600; color: var(--dark);">
+                                    <i class="fas fa-stethoscope"></i> Veterinaras
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="registerName" class="label-required">Vardas</label>
                         <input type="text" id="registerName" placeholder="Jūsų vardas" required>
@@ -1232,7 +1252,6 @@
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 
@@ -1261,12 +1280,14 @@
         let currentUser = null;
 
         // Initialize App
-        function init() {
-            setupEventListeners();
-            if (authToken) {
-                validateToken();
-            }
-        }
+        // Update init to call setupRegisterRoleButtons
+function init() {
+    setupEventListeners();
+    setupRegisterRoleButtons();
+    if (authToken) {
+        validateToken();
+    }
+}
 
         // Setup Event Listeners
         function setupEventListeners() {
@@ -1342,123 +1363,300 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Authentication Functions
-        async function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+        // Fixed authentication and role selection
+async function handleRegister(e) {
+    e.preventDefault();
+    console.log('Register form submitted');
+    
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+    const role = document.querySelector('input[name="registerRole"]:checked').value;
 
-            try {
-                const response = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+    // Validation
+    if (!name || !email || !password || !passwordConfirm) {
+        showAlert('Prašome užpildyti visus laukus', 'error');
+        return;
+    }
 
-                const data = await response.json();
-                
-                if (response.ok) {
-                    authToken = data.access_token;
-                    localStorage.setItem('auth_token', authToken);
-                    showAlert('Sėkmingai prisijungta!', 'success');
-                    closeModal('loginModal');
-                    loadUserData();
-                    document.getElementById('loginForm').reset();
-                } else {
-                    showAlert('Neteisingi prisijungimo duomenys', 'error');
-                }
-            } catch (error) {
-                showAlert('Prisijungimo klaida', 'error');
-                console.error(error);
+    if (password !== passwordConfirm) {
+        showAlert('Slaptažodžiai nesutampa', 'error');
+        return;
+    }
+
+    if (password.length < 6) {
+        showAlert('Slaptažodis turi būti bent 6 simboliai ilgio', 'error');
+        return;
+    }
+
+    try {
+        console.log('Sending registration request with role:', role);
+        
+        const response = await fetch(`${API_URL}/auth/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name.trim(),
+                email: email.trim(),
+                password: password,
+                role: role
+            })
+        });
+
+        const data = await response.json();
+        console.log('Registration response:', response.status, data);
+        
+        if (response.ok) {
+            showAlert('Registracija sėkminga! Dabar prisijunkite.', 'success');
+            closeModal('registerModal');
+            document.getElementById('registerForm').reset();
+            openModal('loginModal');
+        } else {
+            const errorMessage = data.error || data.message || 'Registracijos klaida';
+            showAlert(errorMessage, 'error');
+            console.error('Registration error:', data);
+        }
+    } catch (error) {
+        showAlert('Registracijos klaida: ' + error.message, 'error');
+        console.error('Registration fetch error:', error);
+    }
+}
+
+// Fix token validation - don't logout on GET request failure
+async function validateToken() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/me`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Accept': 'application/json'
             }
+        });
+
+        if (!response.ok) {
+            console.warn('Token invalid or expired');
+            localStorage.removeItem('auth_token');
+            authToken = null;
+            return;
         }
 
-        async function handleRegister(e) {
-            e.preventDefault();
-            console.log('Register form submitted'); // Debug log
+        const data = await response.json();
+        currentUser = data;
+        
+        // Load user data after validation
+        await loadUserData();
+        
+        // Hide auth buttons and show logout if user is logged in
+        document.getElementById('btnLogin').style.display = 'none';
+        document.getElementById('btnRegister').style.display = 'none';
+        
+        // Add logout button if not exists
+        if (!document.getElementById('btnLogout')) {
+            const authButtons = document.querySelector('.auth-buttons');
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'btnLogout';
+            logoutBtn.className = 'btn-header btn-login';
+            logoutBtn.innerHTML = `<i class="fas fa-sign-out-alt"></i> Atsijungti`;
+            logoutBtn.addEventListener('click', logout);
+            authButtons.appendChild(logoutBtn);
+        }
+        
+        // Show admin panel for admins
+        if (currentUser.role === 'admin') {
+            showAdminPanel();
+        }
+        
+    } catch (error) {
+        console.error('Token validation error:', error);
+        localStorage.removeItem('auth_token');
+        authToken = null;
+    }
+}
+
+// Update handleLogin to show logout button
+async function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.access_token;
+            localStorage.setItem('auth_token', authToken);
+            showAlert('Sėkmingai prisijungta!', 'success');
+            closeModal('loginModal');
+            document.getElementById('loginForm').reset();
             
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
-
-            // Validation
-            if (!name || !email || !password || !passwordConfirm) {
-                showAlert('Prašome užpildyti visus laukus', 'error');
-                return;
-            }
-
-            if (password !== passwordConfirm) {
-                showAlert('Slaptažodžiai nesutampa', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showAlert('Slaptažodis turi būti bent 6 simboliai ilgio', 'error');
-                return;
-            }
-
-            try {
-                console.log('Sending registration request to:', `${API_URL}/auth/register`);
-                
-                const response = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: name.trim(),
-                        email: email.trim(),
-                        password: password,
-                        role: 'user'
-                    })
-                });
-
-                const data = await response.json();
-                console.log('Registration response:', response.status, data);
-                
-                if (response.ok) {
-                    showAlert('Registracija sėkminga! Dabar prisijunkite.', 'success');
-                    closeModal('registerModal');
-                    document.getElementById('registerForm').reset();
-                    openModal('loginModal');
-                } else {
-                    // Handle validation errors or duplicate email
-                    const errorMessage = data.error || data.message || 'Registracijos klaida';
-                    showAlert(errorMessage, 'error');
-                    console.error('Registration error:', data);
-                }
-            } catch (error) {
-                showAlert('Registracijos klaida: ' + error.message, 'error');
-                console.error('Registration fetch error:', error);
-            }
+            // Validate token and load user data
+            await validateToken();
+        } else {
+            showAlert('Neteisingi prisijungimo duomenys', 'error');
         }
+    } catch (error) {
+        showAlert('Prisijungimo klaida', 'error');
+        console.error(error);
+    }
+}
 
-        async function validateToken() {
-            const response = await fetch(`${API_URL}/auth/me`, {
-                method: 'POST',  // Add this
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                console.warn('Token invalid or expired');
-                logout();
-                return;
+// Add role label styling
+function setupRegisterRoleButtons() {
+    const roleInputs = document.querySelectorAll('input[name="registerRole"]');
+    const userLabel = document.getElementById('userTypeLabel');
+    const vetLabel = document.getElementById('vetTypeLabel');
+    
+    if (userLabel) {
+        userLabel.style.borderColor = 'var(--primary)';
+    }
+    
+    roleInputs.forEach(input => {
+        input.addEventListener('change', (e) => {
+            if (e.target.value === 'user') {
+                if (userLabel) userLabel.style.borderColor = 'var(--primary)';
+                if (vetLabel) vetLabel.style.borderColor = 'var(--border)';
+            } else {
+                if (userLabel) userLabel.style.borderColor = 'var(--border)';
+                if (vetLabel) vetLabel.style.borderColor = 'var(--primary)';
             }
+        });
+    });
+}
 
-            const data = await response.json();
-            currentUser = data;
+// Admin panel for viewing users
+async function loadUsers() {
+    if (!authToken || currentUser.role !== 'admin') return;
+
+    try {
+        const response = await fetch(`${API_URL}/users`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (response.ok) {
+            const users = await response.json();
+            displayUsers(users);
         }
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
 
+function displayUsers(users) {
+    const container = document.getElementById('usersList') || createUsersSection();
+    
+    if (users.length === 0) {
+        container.innerHTML = '<p>Nėra naudotojų.</p>';
+        return;
+    }
 
-        async function loadUserData() {
-            if (!authToken) return;
-            loadPets();
+    const roleLabels = {
+        'user': '👨‍👩‍👧 Šeimininkas',
+        'vet': '🩺 Veterinaras',
+        'admin': '⚙️ Administratorius'
+    };
+
+    container.innerHTML = users.map(user => `
+        <div style="background: white; padding: 1rem; border-radius: 0.5rem; border-left: 4px solid var(--primary); margin-bottom: 1rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+            <div>
+                <h4 style="color: var(--dark); margin-bottom: 0.25rem;">${user.name}</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">${user.email}</p>
+                <span style="display: inline-block; padding: 0.3rem 0.8rem; background: var(--primary-light); color: var(--primary); border-radius: 1rem; font-size: 0.8rem; font-weight: 600;">
+                    ${roleLabels[user.role] || user.role}
+                </span>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.85rem; text-align: right;">
+                <i class="fas fa-calendar"></i><br>
+                ${new Date(user.created_at).toLocaleDateString('lt-LT')}
+            </p>
+        </div>
+    `).join('');
+}
+
+function createUsersSection() {
+    const container = document.createElement('div');
+    container.id = 'usersList';
+    container.style.marginTop = '2rem';
+    
+    // Insert before the first section or in main
+    const main = document.querySelector('main');
+    const firstSection = main.querySelector('section');
+    
+    if (firstSection) {
+        firstSection.parentNode.insertBefore(container, firstSection);
+    } else {
+        main.appendChild(container);
+    }
+    
+    return container;
+}
+
+function showAdminPanel() {
+    // Create admin section if it doesn't exist
+    let adminSection = document.getElementById('adminSection');
+    
+    if (!adminSection) {
+        adminSection = document.createElement('section');
+        adminSection.id = 'adminSection';
+        adminSection.style.marginTop = '2rem';
+        
+        const main = document.querySelector('main');
+        const firstSection = main.querySelector('section');
+        
+        if (firstSection) {
+            firstSection.parentNode.insertBefore(adminSection, firstSection);
+        } else {
+            main.appendChild(adminSection);
         }
+    }
+    
+    adminSection.innerHTML = `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-users"></i>
+                    Sistemos naudotojai
+                </div>
+                <div class="card-actions">
+                    <button class="btn-icon" id="btnRefreshUsers" title="Atnaujinti">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="usersList" style="padding: 1rem;">
+                <p style="color: var(--text-secondary); text-align: center;">Kraunasi...</p>
+            </div>
+        </div>
+    `;
+    
+    // Load users
+    loadUsers();
+    
+    // Add refresh button listener
+    document.getElementById('btnRefreshUsers').addEventListener('click', loadUsers);
+}
+
+
+
+
+        // Update loadUserData to load procedures too
+async function loadUserData() {
+    if (!authToken) return;
+    await loadPets();
+    await loadHealthRecords();
+    await loadProcedures();
+}
 
         // Pet Functions
         async function loadPets() {
@@ -1581,190 +1779,160 @@
         }
 
         // Health Record Functions
-        async function loadHealthRecords(petId) {
-            if (!authToken) return;
+        let allHealthRecords = [];
 
-            try {
-                const response = await fetch(`${API_URL}/pets/${petId}/health-records`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
+async function loadHealthRecords(petId = null) {
+    if (!authToken) return;
 
-                if (response.ok) {
-                    const records = await response.json();
-                    displayHealthRecords(records);
-                    document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
-                }
-            } catch (error) {
-                console.error('Error loading health records:', error);
-            }
+    try {
+        // Load all health records for the user's pets
+        const response = await fetch(`${API_URL}/health-records`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (response.ok) {
+            allHealthRecords = await response.json();
+            displayHealthRecords(allHealthRecords, petId);
         }
+    } catch (error) {
+        console.error('Error loading health records:', error);
+    }
+}
 
-        function displayHealthRecords(records) {
-            const container = document.getElementById('healthRecordsList');
-            
-            if (records.length === 0) {
-                container.innerHTML = `
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        <i class="fas fa-file-medical" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Nėra sveikatos įrašų.
-                    </p>
-                `;
-                return;
-            }
+function displayHealthRecords(records, filterPetId = null) {
+    const container = document.getElementById('healthRecordsList');
+    
+    // Filter records if petId is provided
+    let filteredRecords = records;
+    if (filterPetId) {
+        filteredRecords = records.filter(r => r.pet_id == filterPetId);
+    }
+    
+    if (filteredRecords.length === 0) {
+        container.innerHTML = `
+            <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                <i class="fas fa-file-medical" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                Nėra sveikatos įrašų.
+            </p>
+        `;
+        return;
+    }
 
-            container.innerHTML = records.map(record => `
-                <div class="health-record">
-                    <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> Sveikatos įrašas #${record.id}</h4>
-                    <p><strong>Svoris:</strong> ${record.weight ? record.weight + ' kg' : 'Nenurodyta'}</p>
-                    <p><strong>Skiepai:</strong> ${record.vaccines || 'Nenurodyta'}</p>
-                    <p><strong>Ligų istorija:</strong> ${record.illness_history || 'Nenurodyta'}</p>
-                    <p><strong>Rekomendacijos:</strong> ${record.recommendations || 'Nenurodyta'}</p>
-                    <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
-                        <i class="fas fa-calendar"></i> ${new Date(record.created_at).toLocaleDateString('lt-LT')}
+    container.innerHTML = filteredRecords.map(record => `
+        <div class="health-record">
+            <h4><i class="fas fa-check-circle" style="color: var(--success);"></i> ${record.pet?.name || 'Augintinis'} - Sveikatos įrašas #${record.id}</h4>
+            <p><strong>Svoris:</strong> ${record.weight ? record.weight + ' kg' : 'Nenurodyta'}</p>
+            <p><strong>Skiepai:</strong> ${record.vaccines || 'Nenurodyta'}</p>
+            <p><strong>Ligų istorija:</strong> ${record.illness_history || 'Nenurodyta'}</p>
+            <p><strong>Rekomendacijos:</strong> ${record.recommendations || 'Nenurodyta'}</p>
+            <p style="color: var(--text-secondary); font-size: 0.8rem; margin-top: 0.5rem;">
+                <i class="fas fa-calendar"></i> ${new Date(record.created_at).toLocaleDateString('lt-LT')}
+            </p>
+        </div>
+    `).join('');
+}
+
+function updateHealthRecordSelect(pets) {
+    const select = document.getElementById('filterHealthPet');
+    select.innerHTML = '<option value="">Visi augintiniai</option>' + 
+        pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
+    
+    // Add event listener for filtering
+    select.addEventListener('change', (e) => {
+        displayHealthRecords(allHealthRecords, e.target.value);
+    });
+}
+
+// Procedure Functions
+let allProcedures = [];
+
+async function loadProcedures(petId = null, healthRecordId = null) {
+    if (!authToken) return;
+
+    try {
+        let url = `${API_URL}/procedures`;
+        const params = [];
+        
+        if (petId) params.push(`pet_id=${petId}`);
+        if (healthRecordId) params.push(`health_record_id=${healthRecordId}`);
+        
+        if (params.length > 0) {
+            url += '?' + params.join('&');
+        }
+        
+        const response = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (response.ok) {
+            allProcedures = await response.json();
+            displayProcedures(allProcedures);
+            updateProcedureSelects();
+        }
+    } catch (error) {
+        console.error('Error loading procedures:', error);
+    }
+}
+
+function displayProcedures(procedures) {
+    const container = document.getElementById('proceduresList');
+    
+    if (procedures.length === 0) {
+        container.innerHTML = `
+            <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
+                <i class="fas fa-tasks" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
+                Nėra procedūrų.
+            </p>
+        `;
+        return;
+    }
+
+    container.innerHTML = procedures.map(proc => {
+        const statusClass = {
+            'planned': 'badge-info',
+            'done': 'badge-success',
+            'canceled': 'badge-danger'
+        }[proc.status] || 'badge-info';
+
+        const statusText = {
+            'planned': 'Numatyta',
+            'done': 'Baigta',
+            'canceled': 'Atšaukta'
+        }[proc.status] || proc.status;
+
+        return `
+            <div class="procedure-item">
+                <div class="procedure-info">
+                    <h5>${proc.title}</h5>
+                    <p>${proc.description || 'Nėra aprašymo'}</p>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary);">
+                        <i class="fas fa-heartbeat"></i> ${proc.health_record?.pet?.name || 'Augintinis'}
                     </p>
+                    ${proc.scheduled_at ? `<p><i class="fas fa-calendar"></i> ${new Date(proc.scheduled_at).toLocaleDateString('lt-LT')}</p>` : ''}
                 </div>
-            `).join('');
-        }
+                <span class="badge ${statusClass}">${statusText}</span>
+            </div>
+        `;
+    }).join('');
+}
 
-        function updateHealthRecordSelect(pets) {
-            const select = document.getElementById('healthPet');
-            select.innerHTML = '<option value="">Pasirinkite augintinį</option>' + 
-                pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
-        }
+function updateProcedureSelects() {
+    const healthRecordSelect = document.getElementById('procHealthRecord');
+    
+    // Populate health record select with all available health records
+    if (healthRecordSelect) {
+        fetch(`${API_URL}/health-records`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        })
+        .then(r => r.json())
+        .then(records => {
+            healthRecordSelect.innerHTML = '<option value="">Pasirinkite sveikatos įrašą</option>' + 
+                records.map(r => `<option value="${r.id}">${r.pet?.name || 'Augintinis'} - Įrašas #${r.id}</option>`).join('');
+        });
+    }
+}
 
-        async function handleAddHealth(e) {
-            e.preventDefault();
-            
-            const health = {
-                pet_id: document.getElementById('healthPet').value,
-                weight: document.getElementById('healthWeight').value || null,
-                vaccines: document.getElementById('healthVaccines').value || null,
-                illness_history: document.getElementById('healthIllness').value || null,
-                recommendations: document.getElementById('healthRecommendations').value || null
-            };
 
-            try {
-                const response = await fetch(`${API_URL}/health-records`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(health)
-                });
-
-                if (response.ok) {
-                    showAlert('Sveikatos įrašas sėkmingai pridėtas!', 'success');
-                    document.getElementById('addHealthSection').style.display = 'none';
-                    document.getElementById('addHealthForm').reset();
-                    const petId = document.getElementById('healthPet').value;
-                    if (petId) loadHealthRecords(petId);
-                } else {
-                    showAlert('Klaida pridėjant sveikatos įrašą', 'error');
-                }
-            } catch (error) {
-                showAlert('Klaida pridėjant sveikatos įrašą', 'error');
-                console.error(error);
-            }
-        }
-
-        // Procedure Functions
-        async function handleAddProcedure(e) {
-            e.preventDefault();
-            
-            const procedure = {
-                health_record_id: document.getElementById('procHealthRecord').value,
-                title: document.getElementById('procTitle').value,
-                description: document.getElementById('procDescription').value || null,
-                scheduled_at: document.getElementById('procDate').value || null,
-                status: document.getElementById('procStatus').value
-            };
-
-            try {
-                const response = await fetch(`${API_URL}/procedures`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(procedure)
-                });
-
-                if (response.ok) {
-                    showAlert('Procedūra sėkmingai pridėta!', 'success');
-                    document.getElementById('addProcedureSection').style.display = 'none';
-                    document.getElementById('addProcedureForm').reset();
-                    loadProcedures();
-                } else {
-                    showAlert('Klaida pridėjant procedūrą', 'error');
-                }
-            } catch (error) {
-                showAlert('Klaida pridėjant procedūrą', 'error');
-                console.error(error);
-            }
-        }
-
-        async function loadProcedures() {
-            if (!authToken) return;
-
-            try {
-                const response = await fetch(`${API_URL}/procedures`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
-                });
-
-                if (response.ok) {
-                    const procedures = await response.json();
-                    displayProcedures(procedures);
-                    updateProcedureSelect();
-                }
-            } catch (error) {
-                console.error('Error loading procedures:', error);
-            }
-        }
-
-        function displayProcedures(procedures) {
-            const container = document.getElementById('proceduresList');
-            
-            if (procedures.length === 0) {
-                container.innerHTML = `
-                    <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
-                        <i class="fas fa-tasks" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Nėra procedūrų.
-                    </p>
-                `;
-                return;
-            }
-
-            container.innerHTML = procedures.map(proc => {
-                const statusClass = {
-                    'planned': 'badge-info',
-                    'done': 'badge-success',
-                    'canceled': 'badge-danger'
-                }[proc.status] || 'badge-info';
-
-                const statusText = {
-                    'planned': 'Numatyta',
-                    'done': 'Baigta',
-                    'canceled': 'Atšaukta'
-                }[proc.status] || proc.status;
-
-                return `
-                    <div class="procedure-item">
-                        <div class="procedure-info">
-                            <h5>${proc.title}</h5>
-                            <p>${proc.description || 'Nėra aprašymo'}</p>
-                            ${proc.scheduled_at ? `<p><i class="fas fa-calendar"></i> ${new Date(proc.scheduled_at).toLocaleDateString('lt-LT')}</p>` : ''}
-                        </div>
-                        <span class="badge ${statusClass}">${statusText}</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateProcedureSelect() {
-            const select = document.getElementById('procHealthRecord');
-            // This would be populated from health records
-        }
 
         // Utility Functions
         function showAlert(message, type = 'info') {

@@ -13,6 +13,12 @@ class UserController extends Controller
      */
     public function index()
     {
+        // Only admins can view all users
+        $user = auth()->user();
+        if ($user->role !== 'admin') {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+        
         return response()->json(User::all(), 200);
     }
 
