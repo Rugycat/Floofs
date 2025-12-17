@@ -11,9 +11,18 @@ class PetController extends Controller
      * Display a listing of all pets.
      */
     public function index()
-    {
-        return response()->json(Pet::all(), 200);
+{
+    $user = auth()->user();
+    
+    // Vets and admins see all pets, regular users see only theirs
+    if ($user->role === 'vet' || $user->role === 'admin') {
+        $pets = Pet::all();
+    } else {
+        $pets = Pet::where('user_id', auth()->id())->get();
     }
+    
+    return response()->json($pets, 200);
+}
 
     /**
      * Store a newly created pet.

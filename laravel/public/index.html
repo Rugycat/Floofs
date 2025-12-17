@@ -1437,6 +1437,7 @@
 
         async function validateToken() {
             const response = await fetch(`${API_URL}/auth/me`, {
+                method: 'POST',  // Add this
                 headers: {
                     'Authorization': `Bearer ${authToken}`,
                     'Accept': 'application/json'
