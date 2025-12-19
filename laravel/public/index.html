@@ -84,7 +84,6 @@
             font-size: 2rem;
         }
 
-        /* Responsive Hamburger Menu */
         .menu-toggle {
             display: none;
             background: none;
@@ -140,6 +139,36 @@
             align-items: center;
         }
 
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+        }
+
+        .user-profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-profile-menu span {
+            color: white;
+            font-weight: 500;
+        }
+
         .btn-header {
             padding: 0.6rem 1.2rem;
             border: none;
@@ -171,6 +200,17 @@
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
 
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            background: #d32f2f;
+        }
+
         /* MAIN CONTENT */
         main {
             flex: 1;
@@ -189,6 +229,67 @@
 
         .container.two-col {
             grid-template-columns: repeat(2, 1fr);
+        }
+
+        /* ADMIN SECTION */
+        .admin-section {
+            display: none;
+        }
+
+        .admin-section.active {
+            display: block;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .admin-table thead {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .admin-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .admin-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .admin-table tbody tr:hover {
+            background: var(--light);
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .role-admin {
+            background: #FFC107;
+            color: #000;
+        }
+
+        .role-vet {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .role-user {
+            background: var(--primary-light);
+            color: var(--primary);
         }
 
         /* CARD KOMPONENAI */
@@ -351,6 +452,17 @@
             background: var(--danger);
             color: white;
             transform: translateY(-2px);
+        }
+
+        .btn-danger-small {
+            background: var(--danger);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .btn-danger-small:hover {
+            background: #d32f2f;
         }
 
         /* FORM STILIAI */
@@ -635,6 +747,15 @@
             font-size: 0.85rem;
         }
 
+        /* ROLE-BASED VISIBILITY */
+        .only-vet, .only-admin, .only-user {
+            display: none;
+        }
+
+        .only-vet.visible, .only-admin.visible, .only-user.visible {
+            display: block;
+        }
+
         /* FOOTER STILIAI */
         footer {
             background: linear-gradient(135deg, var(--dark-secondary) 0%, var(--dark) 100%);
@@ -821,6 +942,14 @@
             .health-record {
                 padding: 1rem;
             }
+
+            .admin-table {
+                font-size: 0.9rem;
+            }
+
+            .admin-table th, .admin-table td {
+                padding: 0.75rem;
+            }
         }
 
         /* ANIMACIJOS */
@@ -850,7 +979,6 @@
             animation: pulse 2s ease-in-out infinite;
         }
 
-        /* TRANSITIONS */
         .fade-enter {
             animation: fadeIn 0.3s ease-out;
         }
@@ -872,13 +1000,14 @@
                 <i class="fas fa-bars"></i>
             </button>
             <nav class="header-nav" id="headerNav">
-                <a href="#dashboard">Pradžia</a>
+                <a href="#dashboard" class="only-user visible only-vet visible only-admin visible">Pradžia</a>
+                <a href="#admin-panel" class="only-admin">Administracija</a>
                 <a href="#pets">Mano augintiniai</a>
                 <a href="#health">Sveikata</a>
                 <a href="#procedures">Procedūros</a>
                 <a href="#about">Apie</a>
             </nav>
-            <div class="auth-buttons">
+            <div class="auth-buttons" id="authButtons">
                 <button class="btn-header btn-login" id="btnLogin">Prisijungti</button>
                 <button class="btn-header btn-register" id="btnRegister">Registracija</button>
             </div>
@@ -897,7 +1026,7 @@
                     <div class="card-header">
                         <div class="card-title">
                             <i class="fas fa-chart-line"></i>
-                            Sveiki sugrįžę į Floofs
+                            <span id="welcomeText">Sveiki sugrįžę į Floofs</span>
                         </div>
                     </div>
                     <p style="color: var(--text-secondary); line-height: 1.8;">
@@ -912,7 +1041,7 @@
                         Augintiniai
                     </div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;" id="statsAdmins">0</div>
                         <p style="color: var(--text-secondary);">Registruoti augintiniai</p>
                     </div>
                 </div>
@@ -924,7 +1053,7 @@
                         Sveikata
                     </div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;" id="statsHealthRecords">0</div>
                         <p style="color: var(--text-secondary);">Sveikatos įrašai</p>
                     </div>
                 </div>
@@ -936,10 +1065,37 @@
                         Procedūros
                     </div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;" id="statsProcedures">0</div>
                         <p style="color: var(--text-secondary);">Numatytos procedūros</p>
                     </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Admin Panel Section -->
+        <section id="admin-panel" class="admin-section">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-users-cog"></i>
+                        Vartotojų valdymas
+                    </div>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Vardas</th>
+                            <th>El. paštas</th>
+                            <th>Rolė</th>
+                            <th>Veiksmai</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersTable">
+                        <tr>
+                            <td colspan="4" style="text-align: center; color: var(--text-secondary);">Nėra duomenų</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
 
@@ -955,7 +1111,7 @@
                         <button class="btn-icon" id="btnRefreshPets" title="Atnaujinti">
                             <i class="fas fa-sync-alt"></i>
                         </button>
-                        <button class="btn-icon" id="btnAddPet" title="Pridėti augintinį">
+                        <button class="btn-icon only-user visible only-vet visible" id="btnAddPet" title="Pridėti augintinį">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -1030,7 +1186,7 @@
                         Sveikatos įrašai
                     </div>
                     <div class="card-actions">
-                        <button class="btn-icon" id="btnAddHealth" title="Pridėti">
+                        <button class="btn-icon only-vet visible" id="btnAddHealth" title="Pridėti">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -1100,7 +1256,7 @@
                         Procedūros
                     </div>
                     <div class="card-actions">
-                        <button class="btn-icon" id="btnAddProcedure" title="Pridėti">
+                        <button class="btn-icon only-vet visible" id="btnAddProcedure" title="Pridėti">
                             <i class="fas fa-plus"></i>
                         </button>
                     </div>
@@ -1226,13 +1382,21 @@
                         <label for="registerPasswordConfirm" class="label-required">Patvirtinti slaptažodį</label>
                         <input type="password" id="registerPasswordConfirm" placeholder="Patvirtinkite slaptažodį" required minlength="6">
                     </div>
+                    <div class="form-group">
+                        <label for="registerRole" class="label-required">Pasirinkite rolę</label>
+                        <select id="registerRole" required>
+                            <option value="">Pasirinkite rolę</option>
+                            <option value="user">Vartotojas (gali peržiūrėti savo augintinių duomenis)</option>
+                            <option value="vet">Veterinaras (gali įvesti sveikatos ir procedūrų duomenis)</option>
+                            <option value="admin">Administratorius (galima valdyti sistemą)</option>
+                        </select>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-action btn-secondary" data-modal="registerModal">Atšaukti</button>
                         <button type="submit" class="btn-action btn-primary" id="btnSubmitRegister">Registruotis</button>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 
@@ -1259,6 +1423,7 @@
         const API_URL = 'https://floofs-web.onrender.com/api';
         let authToken = localStorage.getItem('auth_token');
         let currentUser = null;
+        let currentUserRole = null;
 
         // Initialize App
         function init() {
@@ -1299,30 +1464,39 @@
             document.getElementById('addProcedureForm').addEventListener('submit', handleAddProcedure);
 
             // Button Toggles
-            document.getElementById('btnAddPet').addEventListener('click', () => {
-                document.getElementById('addPetSection').style.display = 
-                    document.getElementById('addPetSection').style.display === 'none' ? 'block' : 'none';
-            });
+            const btnAddPet = document.getElementById('btnAddPet');
+            if (btnAddPet) {
+                btnAddPet.addEventListener('click', () => {
+                    document.getElementById('addPetSection').style.display = 
+                        document.getElementById('addPetSection').style.display === 'none' ? 'block' : 'none';
+                });
+            }
 
             document.getElementById('btnCancelPet').addEventListener('click', () => {
                 document.getElementById('addPetSection').style.display = 'none';
                 document.getElementById('addPetForm').reset();
             });
 
-            document.getElementById('btnAddHealth').addEventListener('click', () => {
-                document.getElementById('addHealthSection').style.display = 
-                    document.getElementById('addHealthSection').style.display === 'none' ? 'block' : 'none';
-            });
+            const btnAddHealth = document.getElementById('btnAddHealth');
+            if (btnAddHealth) {
+                btnAddHealth.addEventListener('click', () => {
+                    document.getElementById('addHealthSection').style.display = 
+                        document.getElementById('addHealthSection').style.display === 'none' ? 'block' : 'none';
+                });
+            }
 
             document.getElementById('btnCancelHealth').addEventListener('click', () => {
                 document.getElementById('addHealthSection').style.display = 'none';
                 document.getElementById('addHealthForm').reset();
             });
 
-            document.getElementById('btnAddProcedure').addEventListener('click', () => {
-                document.getElementById('addProcedureSection').style.display = 
-                    document.getElementById('addProcedureSection').style.display === 'none' ? 'block' : 'none';
-            });
+            const btnAddProcedure = document.getElementById('btnAddProcedure');
+            if (btnAddProcedure) {
+                btnAddProcedure.addEventListener('click', () => {
+                    document.getElementById('addProcedureSection').style.display = 
+                        document.getElementById('addProcedureSection').style.display === 'none' ? 'block' : 'none';
+                });
+            }
 
             document.getElementById('btnCancelProcedure').addEventListener('click', () => {
                 document.getElementById('addProcedureSection').style.display = 'none';
@@ -1340,6 +1514,67 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Update UI based on role
+        function updateUIBasedOnRole() {
+            if (!currentUser) {
+                document.querySelectorAll('.only-user, .only-vet, .only-admin').forEach(el => {
+                    el.classList.remove('visible');
+                });
+                return;
+            }
+
+            const role = currentUser.role;
+            
+            // Hide all role-based content first
+            document.querySelectorAll('.only-user, .only-vet, .only-admin').forEach(el => {
+                el.classList.remove('visible');
+            });
+
+            // Show content for current role
+            if (role === 'user') {
+                document.querySelectorAll('.only-user').forEach(el => el.classList.add('visible'));
+            } else if (role === 'vet') {
+                document.querySelectorAll('.only-vet').forEach(el => el.classList.add('visible'));
+            } else if (role === 'admin') {
+                document.querySelectorAll('.only-admin').forEach(el => el.classList.add('visible'));
+            }
+
+            // Show admin panel if admin
+            if (role === 'admin') {
+                document.getElementById('admin-panel').classList.add('active');
+                loadAllUsers();
+            }
+        }
+
+        // Update Header with User Info
+        function updateHeaderWithUser() {
+            const authButtons = document.getElementById('authButtons');
+            
+            if (currentUser) {
+                authButtons.innerHTML = `
+                    <div class="user-profile">
+                        <div class="user-profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-profile-menu">
+                            <span>${currentUser.name}</span>
+                            <small style="color: rgba(255,255,255,0.7);">${getRoleText(currentUser.role)}</small>
+                        </div>
+                        <button class="btn-header btn-logout" onclick="logout()">Atsijungti</button>
+                    </div>
+                `;
+            }
+        }
+
+        function getRoleText(role) {
+            const roles = {
+                'user': 'Vartotojas',
+                'vet': 'Veterinaras',
+                'admin': 'Administratorius'
+            };
+            return roles[role] || role;
         }
 
         // Authentication Functions
@@ -1362,7 +1597,7 @@
                     localStorage.setItem('auth_token', authToken);
                     showAlert('Sėkmingai prisijungta!', 'success');
                     closeModal('loginModal');
-                    loadUserData();
+                    validateToken();
                     document.getElementById('loginForm').reset();
                 } else {
                     showAlert('Neteisingi prisijungimo duomenys', 'error');
@@ -1375,15 +1610,15 @@
 
         async function handleRegister(e) {
             e.preventDefault();
-            console.log('Register form submitted'); // Debug log
             
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            const role = document.getElementById('registerRole').value;
 
             // Validation
-            if (!name || !email || !password || !passwordConfirm) {
+            if (!name || !email || !password || !passwordConfirm || !role) {
                 showAlert('Prašome užpildyti visus laukus', 'error');
                 return;
             }
@@ -1399,8 +1634,6 @@
             }
 
             try {
-                console.log('Sending registration request to:', `${API_URL}/auth/register`);
-                
                 const response = await fetch(`${API_URL}/auth/register`, {
                     method: 'POST',
                     headers: {
@@ -1411,12 +1644,11 @@
                         name: name.trim(),
                         email: email.trim(),
                         password: password,
-                        role: 'user'
+                        role: role
                     })
                 });
 
                 const data = await response.json();
-                console.log('Registration response:', response.status, data);
                 
                 if (response.ok) {
                     showAlert('Registracija sėkminga! Dabar prisijunkite.', 'success');
@@ -1424,40 +1656,108 @@
                     document.getElementById('registerForm').reset();
                     openModal('loginModal');
                 } else {
-                    // Handle validation errors or duplicate email
                     const errorMessage = data.error || data.message || 'Registracijos klaida';
                     showAlert(errorMessage, 'error');
-                    console.error('Registration error:', data);
                 }
             } catch (error) {
                 showAlert('Registracijos klaida: ' + error.message, 'error');
-                console.error('Registration fetch error:', error);
             }
         }
 
         async function validateToken() {
-            const response = await fetch(`${API_URL}/auth/me`, {
-                method: 'POST',  // Add this
-                headers: {
-                    'Authorization': `Bearer ${authToken}`,
-                    'Accept': 'application/json'
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    logout();
+                    return;
                 }
-            });
 
-            if (!response.ok) {
-                console.warn('Token invalid or expired');
+                const data = await response.json();
+                currentUser = data;
+                currentUserRole = data.role;
+                updateUIBasedOnRole();
+                updateHeaderWithUser();
+                loadUserData();
+            } catch (error) {
+                console.error('Token validation error:', error);
                 logout();
-                return;
             }
-
-            const data = await response.json();
-            currentUser = data;
         }
-
 
         async function loadUserData() {
             if (!authToken) return;
             loadPets();
+            loadHealthRecords();
+            loadProcedures();
+        }
+
+        // Admin Functions
+        async function loadAllUsers() {
+            if (!authToken || currentUserRole !== 'admin') return;
+
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    displayAllUsers(users);
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        function displayAllUsers(users) {
+            const table = document.getElementById('adminUsersTable');
+            
+            if (users.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Nėra vartotojų</td></tr>';
+                return;
+            }
+
+            table.innerHTML = users.map(user => `
+                <tr>
+                    <td><strong>${user.name}</strong></td>
+                    <td>${user.email}</td>
+                    <td>
+                        <span class="role-badge role-${user.role}">
+                            ${getRoleText(user.role)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-danger-small" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i> Ištrinti
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function deleteUser(userId) {
+            if (!confirm('Ar tikrai norite ištrinti šį vartotoją?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    showAlert('Vartotojas ištrintas', 'success');
+                    loadAllUsers();
+                }
+            } catch (error) {
+                showAlert('Klaida trinant vartotoją', 'error');
+            }
         }
 
         // Pet Functions
@@ -1581,18 +1881,25 @@
         }
 
         // Health Record Functions
-        async function loadHealthRecords(petId) {
+        async function loadHealthRecords(petId = null) {
             if (!authToken) return;
 
             try {
-                const response = await fetch(`${API_URL}/pets/${petId}/health-records`, {
+                let url = `${API_URL}/health-records`;
+                if (petId) {
+                    url = `${API_URL}/pets/${petId}/health-records`;
+                }
+
+                const response = await fetch(url, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
 
                 if (response.ok) {
                     const records = await response.json();
                     displayHealthRecords(records);
-                    document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
+                    if (petId) {
+                        document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading health records:', error);
@@ -1635,6 +1942,11 @@
         async function handleAddHealth(e) {
             e.preventDefault();
             
+            if (currentUserRole !== 'vet') {
+                showAlert('Tik veterinarai gali įvesti sveikatos duomenis', 'error');
+                return;
+            }
+
             const health = {
                 pet_id: document.getElementById('healthPet').value,
                 weight: document.getElementById('healthWeight').value || null,
@@ -1672,6 +1984,11 @@
         async function handleAddProcedure(e) {
             e.preventDefault();
             
+            if (currentUserRole !== 'vet') {
+                showAlert('Tik veterinarai gali įvesti procedūras', 'error');
+                return;
+            }
+
             const procedure = {
                 health_record_id: document.getElementById('procHealthRecord').value,
                 title: document.getElementById('procTitle').value,
@@ -1794,6 +2111,7 @@
         function logout() {
             authToken = null;
             currentUser = null;
+            currentUserRole = null;
             localStorage.removeItem('auth_token');
             location.reload();
         }
