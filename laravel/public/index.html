@@ -46,7 +46,6 @@
             flex-direction: column;
         }
 
-        /* HEADER STILIAI */
         header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
@@ -74,6 +73,7 @@
             align-items: center;
             gap: 0.5rem;
             transition: var(--transition);
+            cursor: pointer;
         }
 
         .header-logo:hover {
@@ -92,10 +92,6 @@
             font-size: 1.5rem;
             cursor: pointer;
             transition: var(--transition);
-        }
-
-        .menu-toggle:hover {
-            transform: scale(1.1);
         }
 
         .header-nav {
@@ -156,17 +152,24 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         .user-profile-menu {
             display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
         .user-profile-menu span {
             color: white;
             font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .user-profile-menu small {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
         }
 
         .btn-header {
@@ -211,7 +214,6 @@
             background: #d32f2f;
         }
 
-        /* MAIN CONTENT */
         main {
             flex: 1;
             max-width: 1400px;
@@ -231,7 +233,6 @@
             grid-template-columns: repeat(2, 1fr);
         }
 
-        /* ADMIN SECTION */
         .admin-section {
             display: none;
         }
@@ -292,7 +293,6 @@
             color: var(--primary);
         }
 
-        /* CARD KOMPONENAI */
         .card {
             background: white;
             border-radius: 1rem;
@@ -356,7 +356,6 @@
             transform: scale(1.05);
         }
 
-        /* CONTENT AREA STILIAI */
         .pet-list {
             display: flex;
             flex-direction: column;
@@ -407,6 +406,7 @@
         .pet-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .btn-action {
@@ -465,7 +465,6 @@
             background: #d32f2f;
         }
 
-        /* FORM STILIAI */
         .form-group {
             margin-bottom: 1.5rem;
         }
@@ -530,7 +529,6 @@
             padding-right: 2.5rem;
         }
 
-        /* STATUS BADGES */
         .badge {
             display: inline-block;
             padding: 0.4rem 0.8rem;
@@ -561,7 +559,6 @@
             color: var(--primary);
         }
 
-        /* MODAL STILIAI */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -582,12 +579,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal {
@@ -652,7 +645,6 @@
             justify-content: flex-end;
         }
 
-        /* ALERTS */
         .alert {
             padding: 1rem 1.5rem;
             border-radius: 0.5rem;
@@ -697,7 +689,6 @@
             border-left: 4px solid var(--warning);
         }
 
-        /* HEALTH RECORDS */
         .health-record {
             background: linear-gradient(135deg, var(--primary-light) 0%, var(--light) 100%);
             padding: 1.5rem;
@@ -747,7 +738,6 @@
             font-size: 0.85rem;
         }
 
-        /* ROLE-BASED VISIBILITY */
         .only-vet, .only-admin, .only-user {
             display: none;
         }
@@ -756,7 +746,6 @@
             display: block;
         }
 
-        /* FOOTER STILIAI */
         footer {
             background: linear-gradient(135deg, var(--dark-secondary) 0%, var(--dark) 100%);
             color: white;
@@ -800,49 +789,9 @@
             padding-left: 0.25rem;
         }
 
-        .footer-social {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .footer-social a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2.5rem;
-            height: 2.5rem;
-            background: rgba(107, 122, 255, 0.2);
-            border-radius: 50%;
-            color: white;
-            transition: var(--transition);
-        }
-
-        .footer-social a:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        .footer-bottom {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 2rem;
-            text-align: center;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .footer-bottom p {
-            margin: 0.5rem 0;
-        }
-
-        /* RESPONSIVE DESIGN */
         @media (max-width: 768px) {
             .menu-toggle {
                 display: block;
-            }
-
-            .header-container {
-                flex-wrap: wrap;
-                gap: 1rem;
             }
 
             .header-nav {
@@ -855,144 +804,31 @@
                 background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
                 padding: 1rem;
                 width: 100%;
-                gap: 0.5rem;
             }
 
             .header-nav.active {
                 display: flex;
             }
 
-            .header-nav a {
-                padding: 0.75rem 1rem;
-                border-radius: 0.5rem;
-            }
-
-            .auth-buttons {
-                width: 100%;
-                flex-direction: column;
-            }
-
-            main {
-                padding: 1rem;
-            }
-
-            .container {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
-            .container.two-col {
-                grid-template-columns: 1fr;
-            }
-
             .form-row {
                 grid-template-columns: 1fr;
             }
 
-            .card {
-                padding: 1.5rem;
-            }
-
-            .pet-item {
-                grid-template-columns: 1fr;
-                gap: 1rem;
-            }
-
             .pet-actions {
                 width: 100%;
-                flex-wrap: wrap;
             }
 
             .btn-action {
                 flex: 1;
                 min-width: 100px;
             }
-
-            .modal {
-                width: 95%;
-                max-height: 95vh;
-            }
-
-            .modal-header {
-                padding: 1.5rem;
-            }
-
-            .modal-body {
-                padding: 1.5rem;
-            }
-
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .card-title {
-                font-size: 1.1rem;
-            }
-
-            .card-actions {
-                width: 100%;
-                margin-top: 1rem;
-            }
-
-            .footer-container {
-                grid-template-columns: 1fr;
-            }
-
-            .health-record {
-                padding: 1rem;
-            }
-
-            .admin-table {
-                font-size: 0.9rem;
-            }
-
-            .admin-table th, .admin-table td {
-                padding: 0.75rem;
-            }
-        }
-
-        /* ANIMACIJOS */
-        @keyframes pulse {
-            0%, 100% {
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.7;
-            }
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .loading {
-            animation: spin 1s linear infinite;
-        }
-
-        .pulse {
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        .fade-enter {
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .slide-enter {
-            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header>
         <div class="header-container">
-            <div class="header-logo">
+            <div class="header-logo" onclick="location.href='#dashboard'">
                 <i class="fas fa-heartbeat"></i>
                 <span>Floofs</span>
             </div>
@@ -1002,10 +838,9 @@
             <nav class="header-nav" id="headerNav">
                 <a href="#dashboard" class="only-user visible only-vet visible only-admin visible">Pradžia</a>
                 <a href="#admin-panel" class="only-admin">Administracija</a>
-                <a href="#pets">Mano augintiniai</a>
+                <a href="#pets">Augintiniai</a>
                 <a href="#health">Sveikata</a>
                 <a href="#procedures">Procedūros</a>
-                <a href="#about">Apie</a>
             </nav>
             <div class="auth-buttons" id="authButtons">
                 <button class="btn-header btn-login" id="btnLogin">Prisijungti</button>
@@ -1014,14 +849,11 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
     <main>
         <div id="alertContainer"></div>
 
-        <!-- Dashboard Section -->
         <section id="dashboard">
             <div class="container two-col">
-                <!-- Welcome Card -->
                 <div class="card" style="grid-column: 1 / -1;">
                     <div class="card-header">
                         <div class="card-title">
@@ -1034,46 +866,33 @@
                     </p>
                 </div>
 
-                <!-- Quick Stats -->
                 <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-paw"></i>
-                        Augintiniai
-                    </div>
+                    <div class="card-title"><i class="fas fa-paw"></i> Augintiniai</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;" id="statsAdmins">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Registruoti augintiniai</p>
                     </div>
                 </div>
 
-                <!-- Health Stats -->
                 <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-heartbeat"></i>
-                        Sveikata
-                    </div>
+                    <div class="card-title"><i class="fas fa-heartbeat"></i> Sveikata</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;" id="statsHealthRecords">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Sveikatos įrašai</p>
                     </div>
                 </div>
 
-                <!-- Procedures Stats -->
                 <div class="card">
-                    <div class="card-title">
-                        <i class="fas fa-clipboard-list"></i>
-                        Procedūros
-                    </div>
+                    <div class="card-title"><i class="fas fa-clipboard-list"></i> Procedūros</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;" id="statsProcedures">0</div>
+                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Numatytos procedūros</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Admin Panel Section -->
-        <section id="admin-panel" class="admin-section">
+        <section id="admin-panel" class="admin-section" style="margin-top: 2rem;">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
@@ -1091,21 +910,18 @@
                         </tr>
                     </thead>
                     <tbody id="adminUsersTable">
-                        <tr>
-                            <td colspan="4" style="text-align: center; color: var(--text-secondary);">Nėra duomenų</td>
-                        </tr>
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">Nėra duomenų</td></tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- Pets Section -->
         <section id="pets" style="margin-top: 2rem;">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
                         <i class="fas fa-cat"></i>
-                        Mano augintiniai
+                        Augintiniai
                     </div>
                     <div class="card-actions">
                         <button class="btn-icon" id="btnRefreshPets" title="Atnaujinti">
@@ -1119,22 +935,22 @@
                 <div class="pet-list" id="petsList">
                     <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
                         <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Jūs neturite registruotų augintinių. Pradėkite nuo naujo augintinio pridėjimo!
+                        Jūs neturite registruotų augintinių.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Add Pet Form -->
         <section id="addPetSection" style="margin-top: 2rem; display: none;">
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
                         <i class="fas fa-user-plus"></i>
-                        Pridėti naują augintinį
+                        <span id="petFormTitle">Pridėti naują augintinį</span>
                     </div>
                 </div>
                 <form id="addPetForm">
+                    <input type="hidden" id="petEditId">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="petName" class="label-required">Augintinio vardas</label>
@@ -1177,7 +993,6 @@
             </div>
         </section>
 
-        <!-- Health Records Section -->
         <section id="health" style="margin-top: 2rem;">
             <div class="card">
                 <div class="card-header">
@@ -1194,13 +1009,12 @@
                 <div id="healthRecordsList">
                     <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
                         <i class="fas fa-file-medical" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Nėra sveikatos įrašų. Pradėkite nuo naujo įrašo!
+                        Nėra sveikatos įrašų.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Add Health Record Form -->
         <section id="addHealthSection" style="margin-top: 2rem; display: none;">
             <div class="card">
                 <div class="card-header">
@@ -1219,10 +1033,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="healthWeight">Svoris (kg)</label>
-                            <div class="input-group">
-                                <input type="number" id="healthWeight" step="0.1" placeholder="0.0">
-                                <i class="fas fa-weight"></i>
-                            </div>
+                            <input type="number" id="healthWeight" step="0.1" placeholder="0.0">
                         </div>
                         <div class="form-group">
                             <label for="healthVaccines">Skiepai</label>
@@ -1231,7 +1042,7 @@
                     </div>
                     <div class="form-group">
                         <label for="healthIllness">Ligų istorija</label>
-                        <textarea id="healthIllness" placeholder="Aprašykite bet kokias žinomas ligas ar sveikatos problemas..."></textarea>
+                        <textarea id="healthIllness" placeholder="Aprašykite ligas..."></textarea>
                     </div>
                     <div class="form-group">
                         <label for="healthRecommendations">Rekomendacijos</label>
@@ -1240,14 +1051,13 @@
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                         <button type="button" class="btn-action btn-secondary" id="btnCancelHealth">Atšaukti</button>
                         <button type="submit" class="btn-action btn-primary">
-                            <i class="fas fa-save"></i> Išsaugoti įrašą
+                            <i class="fas fa-save"></i> Išsaugoti
                         </button>
                     </div>
                 </form>
             </div>
         </section>
 
-        <!-- Procedures Section -->
         <section id="procedures" style="margin-top: 2rem;">
             <div class="card">
                 <div class="card-header">
@@ -1264,13 +1074,12 @@
                 <div id="proceduresList">
                     <p style="color: var(--text-secondary); text-align: center; padding: 2rem;">
                         <i class="fas fa-tasks" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.5;"></i>
-                        Nėra procedūrų. Pradėkite nuo naujos procedūros!
+                        Nėra procedūrų.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Add Procedure Form -->
         <section id="addProcedureSection" style="margin-top: 2rem; display: none;">
             <div class="card">
                 <div class="card-header">
@@ -1297,10 +1106,7 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="procDate">Numatyta data</label>
-                            <div class="input-group">
-                                <input type="date" id="procDate">
-                                <i class="fas fa-calendar"></i>
-                            </div>
+                            <input type="date" id="procDate">
                         </div>
                         <div class="form-group">
                             <label for="procStatus">Būsena</label>
@@ -1314,7 +1120,7 @@
                     <div style="display: flex; gap: 1rem; justify-content: flex-end;">
                         <button type="button" class="btn-action btn-secondary" id="btnCancelProcedure">Atšaukti</button>
                         <button type="submit" class="btn-action btn-primary">
-                            <i class="fas fa-save"></i> Išsaugoti procedūrą
+                            <i class="fas fa-save"></i> Išsaugoti
                         </button>
                     </div>
                 </form>
@@ -1323,7 +1129,6 @@
     </main>
 
     <!-- MODALS -->
-    <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <div class="modal-header">
@@ -1348,14 +1153,13 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-action btn-secondary" data-modal="loginModal">Atšaukti</button>
-                        <button type="submit" class="btn-action btn-primary" id="btnSubmitLogin">Prisijungti</button>
+                        <button type="submit" class="btn-action btn-primary">Prisijungti</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Register Modal -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal">
             <div class="modal-header">
@@ -1386,46 +1190,63 @@
                         <label for="registerRole" class="label-required">Pasirinkite rolę</label>
                         <select id="registerRole" required>
                             <option value="">Pasirinkite rolę</option>
-                            <option value="user">Vartotojas (gali peržiūrėti savo augintinių duomenis)</option>
-                            <option value="vet">Veterinaras (gali įvesti sveikatos ir procedūrų duomenis)</option>
-                            <option value="admin">Administratorius (galima valdyti sistemą)</option>
+                            <option value="user">Vartotojas</option>
+                            <option value="vet">Veterinaras</option>
+                            <option value="admin">Administratorius</option>
                         </select>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn-action btn-secondary" data-modal="registerModal">Atšaukti</button>
-                        <button type="submit" class="btn-action btn-primary" id="btnSubmitRegister">Registruotis</button>
+                        <button type="submit" class="btn-action btn-primary">Registruotis</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Info Modal -->
-    <div class="modal-overlay" id="infoModal">
+    <div class="modal-overlay" id="userProfileModal">
         <div class="modal">
             <div class="modal-header">
-                <h2 id="infoModalTitle"><i class="fas fa-info-circle"></i> Informacija</h2>
-                <button class="modal-close" data-modal="infoModal">
+                <h2><i class="fas fa-user-edit"></i> Redaguoti profilį</h2>
+                <button class="modal-close" data-modal="userProfileModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="modal-body" id="infoModalBody">
-                <p>Suderinimo informacija čia.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-action btn-primary" data-modal="infoModal">Uždaryti</button>
+            <div class="modal-body">
+                <form id="userProfileForm">
+                    <div class="form-group">
+                        <label for="profileName" class="label-required">Vardas</label>
+                        <input type="text" id="profileName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail" class="label-required">El. paštas</label>
+                        <input type="email" id="profileEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileNewPassword">Naujas slaptažodis (palikti tuščią jei nekeičiate)</label>
+                        <input type="password" id="profileNewPassword" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileNewPasswordConfirm">Patvirtinti naują slaptažodį</label>
+                        <input type="password" id="profileNewPasswordConfirm" minlength="6">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-action btn-secondary" data-modal="userProfileModal">Atšaukti</button>
+                        <button type="submit" class="btn-action btn-primary">Išsaugoti</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
     <script>
-        // API Configuration
         const API_URL = 'https://floofs-web.onrender.com/api';
         let authToken = localStorage.getItem('auth_token');
         let currentUser = null;
         let currentUserRole = null;
+        let allPets = [];
+        let allHealthRecords = [];
 
-        // Initialize App
         function init() {
             setupEventListeners();
             if (authToken) {
@@ -1433,40 +1254,35 @@
             }
         }
 
-        // Setup Event Listeners
         function setupEventListeners() {
-            // Mobile Menu Toggle
             document.getElementById('menuToggle').addEventListener('click', () => {
                 document.getElementById('headerNav').classList.toggle('active');
             });
 
-            // Modal Triggers
             document.getElementById('btnLogin').addEventListener('click', () => openModal('loginModal'));
             document.getElementById('btnRegister').addEventListener('click', () => openModal('registerModal'));
 
-            // Modal Close Buttons
             document.querySelectorAll('.modal-close').forEach(btn => {
                 btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-close').dataset.modal));
             });
 
-            // Modal Footer Close Buttons
             document.querySelectorAll('.modal-footer [data-modal]').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    closeModal(e.target.dataset.modal);
-                });
+                btn.addEventListener('click', (e) => closeModal(e.target.dataset.modal));
             });
 
-            // Forms
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('registerForm').addEventListener('submit', handleRegister);
+            document.getElementById('userProfileForm').addEventListener('submit', handleProfileUpdate);
             document.getElementById('addPetForm').addEventListener('submit', handleAddPet);
             document.getElementById('addHealthForm').addEventListener('submit', handleAddHealth);
             document.getElementById('addProcedureForm').addEventListener('submit', handleAddProcedure);
 
-            // Button Toggles
             const btnAddPet = document.getElementById('btnAddPet');
             if (btnAddPet) {
                 btnAddPet.addEventListener('click', () => {
+                    document.getElementById('petEditId').value = '';
+                    document.getElementById('petFormTitle').textContent = 'Pridėti naują augintinį';
+                    document.getElementById('addPetForm').reset();
                     document.getElementById('addPetSection').style.display = 
                         document.getElementById('addPetSection').style.display === 'none' ? 'block' : 'none';
                 });
@@ -1482,6 +1298,7 @@
                 btnAddHealth.addEventListener('click', () => {
                     document.getElementById('addHealthSection').style.display = 
                         document.getElementById('addHealthSection').style.display === 'none' ? 'block' : 'none';
+                    loadAllPetsForHealth();
                 });
             }
 
@@ -1495,6 +1312,7 @@
                 btnAddProcedure.addEventListener('click', () => {
                     document.getElementById('addProcedureSection').style.display = 
                         document.getElementById('addProcedureSection').style.display === 'none' ? 'block' : 'none';
+                    loadHealthRecordsForProcedure();
                 });
             }
 
@@ -1503,11 +1321,9 @@
                 document.getElementById('addProcedureForm').reset();
             });
 
-            // Refresh Button
             document.getElementById('btnRefreshPets').addEventListener('click', loadPets);
         }
 
-        // Modal Functions
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
         }
@@ -1516,7 +1332,6 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        // Update UI based on role
         function updateUIBasedOnRole() {
             if (!currentUser) {
                 document.querySelectorAll('.only-user, .only-vet, .only-admin').forEach(el => {
@@ -1527,12 +1342,10 @@
 
             const role = currentUser.role;
             
-            // Hide all role-based content first
             document.querySelectorAll('.only-user, .only-vet, .only-admin').forEach(el => {
                 el.classList.remove('visible');
             });
 
-            // Show content for current role
             if (role === 'user') {
                 document.querySelectorAll('.only-user').forEach(el => el.classList.add('visible'));
             } else if (role === 'vet') {
@@ -1541,26 +1354,24 @@
                 document.querySelectorAll('.only-admin').forEach(el => el.classList.add('visible'));
             }
 
-            // Show admin panel if admin
             if (role === 'admin') {
                 document.getElementById('admin-panel').classList.add('active');
                 loadAllUsers();
             }
         }
 
-        // Update Header with User Info
         function updateHeaderWithUser() {
             const authButtons = document.getElementById('authButtons');
             
             if (currentUser) {
                 authButtons.innerHTML = `
                     <div class="user-profile">
-                        <div class="user-profile-avatar">
+                        <div class="user-profile-avatar" onclick="openModal('userProfileModal')" title="Redaguoti profilį">
                             <i class="fas fa-user"></i>
                         </div>
                         <div class="user-profile-menu">
                             <span>${currentUser.name}</span>
-                            <small style="color: rgba(255,255,255,0.7);">${getRoleText(currentUser.role)}</small>
+                            <small>${getRoleText(currentUser.role)}</small>
                         </div>
                         <button class="btn-header btn-logout" onclick="logout()">Atsijungti</button>
                     </div>
@@ -1577,7 +1388,6 @@
             return roles[role] || role;
         }
 
-        // Authentication Functions
         async function handleLogin(e) {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
@@ -1617,7 +1427,6 @@
             const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
             const role = document.getElementById('registerRole').value;
 
-            // Validation
             if (!name || !email || !password || !passwordConfirm || !role) {
                 showAlert('Prašome užpildyti visus laukus', 'error');
                 return;
@@ -1664,6 +1473,56 @@
             }
         }
 
+        async function handleProfileUpdate(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('profileName').value;
+            const email = document.getElementById('profileEmail').value;
+            const newPassword = document.getElementById('profileNewPassword').value;
+            const newPasswordConfirm = document.getElementById('profileNewPasswordConfirm').value;
+
+            if (newPassword || newPasswordConfirm) {
+                if (newPassword !== newPasswordConfirm) {
+                    showAlert('Nauji slaptažodžiai nesutampa', 'error');
+                    return;
+                }
+                if (newPassword.length < 6) {
+                    showAlert('Slaptažodis turi būti bent 6 simboliai', 'error');
+                    return;
+                }
+            }
+
+            try {
+                const updateData = {
+                    name: name,
+                    email: email
+                };
+                if (newPassword) {
+                    updateData.password = newPassword;
+                }
+
+                const response = await fetch(`${API_URL}/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    showAlert('Profilis atnaujintas sėkmingai!', 'success');
+                    closeModal('userProfileModal');
+                    validateToken();
+                } else {
+                    showAlert('Klaida atnaujinant profilį', 'error');
+                }
+            } catch (error) {
+                showAlert('Klaida atnaujinant profilį', 'error');
+                console.error(error);
+            }
+        }
+
         async function validateToken() {
             try {
                 const response = await fetch(`${API_URL}/auth/me`, {
@@ -1685,9 +1544,17 @@
                 updateUIBasedOnRole();
                 updateHeaderWithUser();
                 loadUserData();
+                populateProfileForm();
             } catch (error) {
                 console.error('Token validation error:', error);
                 logout();
+            }
+        }
+
+        function populateProfileForm() {
+            if (currentUser) {
+                document.getElementById('profileName').value = currentUser.name;
+                document.getElementById('profileEmail').value = currentUser.email;
             }
         }
 
@@ -1698,7 +1565,6 @@
             loadProcedures();
         }
 
-        // Admin Functions
         async function loadAllUsers() {
             if (!authToken || currentUserRole !== 'admin') return;
 
@@ -1734,8 +1600,8 @@
                         </span>
                     </td>
                     <td>
-                        <button class="btn-danger-small" onclick="deleteUser(${user.id})">
-                            <i class="fas fa-trash"></i> Ištrinti
+                        <button class="btn-action btn-danger" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </td>
                 </tr>
@@ -1754,13 +1620,14 @@
                 if (response.ok) {
                     showAlert('Vartotojas ištrintas', 'success');
                     loadAllUsers();
+                } else {
+                    showAlert('Klaida trinant vartotoją', 'error');
                 }
             } catch (error) {
                 showAlert('Klaida trinant vartotoją', 'error');
             }
         }
 
-        // Pet Functions
         async function loadPets() {
             if (!authToken) return;
 
@@ -1770,9 +1637,8 @@
                 });
 
                 if (response.ok) {
-                    const pets = await response.json();
-                    displayPets(pets);
-                    updateHealthRecordSelect(pets);
+                    allPets = await response.json();
+                    displayPets(allPets);
                 }
             } catch (error) {
                 console.error('Error loading pets:', error);
@@ -1805,10 +1671,10 @@
                         <button class="btn-action btn-primary" onclick="loadHealthRecords(${pet.id})">
                             <i class="fas fa-heartbeat"></i> Sveikata
                         </button>
-                        <button class="btn-action btn-secondary" onclick="editPet(${pet.id})">
+                        <button class="btn-action btn-secondary only-user visible only-vet visible" onclick="editPet(${pet.id})">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn-action btn-danger" onclick="deletePet(${pet.id})">
+                        <button class="btn-action btn-danger only-user visible only-vet visible" onclick="deletePet(${pet.id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -1816,10 +1682,25 @@
             `).join('');
         }
 
+        function editPet(petId) {
+            const pet = allPets.find(p => p.id === petId);
+            if (!pet) return;
+
+            document.getElementById('petEditId').value = petId;
+            document.getElementById('petFormTitle').textContent = 'Redaguoti augintinį';
+            document.getElementById('petName').value = pet.name;
+            document.getElementById('petSpecies').value = pet.species;
+            document.getElementById('petBreed').value = pet.breed || '';
+            document.getElementById('petAge').value = pet.age;
+            document.getElementById('petPhoto').value = pet.photo_path || '';
+            document.getElementById('addPetSection').style.display = 'block';
+        }
+
         async function handleAddPet(e) {
             e.preventDefault();
             
-            const pet = {
+            const petId = document.getElementById('petEditId').value;
+            const petData = {
                 name: document.getElementById('petName').value,
                 species: document.getElementById('petSpecies').value,
                 breed: document.getElementById('petBreed').value || null,
@@ -1828,25 +1709,37 @@
             };
 
             try {
-                const response = await fetch(`${API_URL}/pets`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${authToken}`
-                    },
-                    body: JSON.stringify(pet)
-                });
+                let response;
+                if (petId) {
+                    response = await fetch(`${API_URL}/pets/${petId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(petData)
+                    });
+                } else {
+                    response = await fetch(`${API_URL}/pets`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(petData)
+                    });
+                }
 
                 if (response.ok) {
-                    showAlert('Augintinis sėkmingai pridėtas!', 'success');
+                    showAlert(petId ? 'Augintinis atnaujintas!' : 'Augintinis pridėtas!', 'success');
                     document.getElementById('addPetSection').style.display = 'none';
                     document.getElementById('addPetForm').reset();
                     loadPets();
                 } else {
-                    showAlert('Klaida pridėjant augintinį', 'error');
+                    showAlert('Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida pridėjant augintinį', 'error');
+                showAlert('Klaida', 'error');
                 console.error(error);
             }
         }
@@ -1880,7 +1773,6 @@
             return icons[species] || 'paw';
         }
 
-        // Health Record Functions
         async function loadHealthRecords(petId = null) {
             if (!authToken) return;
 
@@ -1895,8 +1787,8 @@
                 });
 
                 if (response.ok) {
-                    const records = await response.json();
-                    displayHealthRecords(records);
+                    allHealthRecords = await response.json();
+                    displayHealthRecords(allHealthRecords);
                     if (petId) {
                         document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
                     }
@@ -1933,16 +1825,29 @@
             `).join('');
         }
 
-        function updateHealthRecordSelect(pets) {
-            const select = document.getElementById('healthPet');
-            select.innerHTML = '<option value="">Pasirinkite augintinį</option>' + 
-                pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
+        async function loadAllPetsForHealth() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_URL}/pets`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const pets = await response.json();
+                    const select = document.getElementById('healthPet');
+                    select.innerHTML = '<option value="">Pasirinkite augintinį</option>' + 
+                        pets.map(pet => `<option value="${pet.id}">${pet.name}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading pets:', error);
+            }
         }
 
         async function handleAddHealth(e) {
             e.preventDefault();
             
-            if (currentUserRole !== 'vet') {
+            if (currentUserRole !== 'vet' && currentUserRole !== 'admin') {
                 showAlert('Tik veterinarai gali įvesti sveikatos duomenis', 'error');
                 return;
             }
@@ -1966,25 +1871,42 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Sveikatos įrašas sėkmingai pridėtas!', 'success');
+                    showAlert('Sveikatos įrašas pridėtas!', 'success');
                     document.getElementById('addHealthSection').style.display = 'none';
                     document.getElementById('addHealthForm').reset();
-                    const petId = document.getElementById('healthPet').value;
-                    if (petId) loadHealthRecords(petId);
+                    loadHealthRecords();
                 } else {
-                    showAlert('Klaida pridėjant sveikatos įrašą', 'error');
+                    showAlert('Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida pridėjant sveikatos įrašą', 'error');
+                showAlert('Klaida', 'error');
                 console.error(error);
             }
         }
 
-        // Procedure Functions
+        async function loadHealthRecordsForProcedure() {
+            if (!authToken) return;
+
+            try {
+                const response = await fetch(`${API_URL}/health-records`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                if (response.ok) {
+                    const records = await response.json();
+                    const select = document.getElementById('procHealthRecord');
+                    select.innerHTML = '<option value="">Pasirinkite sveikatos įrašą</option>' + 
+                        records.map(record => `<option value="${record.id}">Augintinis #${record.pet_id} - Įrašas #${record.id}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading health records:', error);
+            }
+        }
+
         async function handleAddProcedure(e) {
             e.preventDefault();
             
-            if (currentUserRole !== 'vet') {
+            if (currentUserRole !== 'vet' && currentUserRole !== 'admin') {
                 showAlert('Tik veterinarai gali įvesti procedūras', 'error');
                 return;
             }
@@ -2008,15 +1930,15 @@
                 });
 
                 if (response.ok) {
-                    showAlert('Procedūra sėkmingai pridėta!', 'success');
+                    showAlert('Procedūra pridėta!', 'success');
                     document.getElementById('addProcedureSection').style.display = 'none';
                     document.getElementById('addProcedureForm').reset();
                     loadProcedures();
                 } else {
-                    showAlert('Klaida pridėjant procedūrą', 'error');
+                    showAlert('Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida pridėjant procedūrą', 'error');
+                showAlert('Klaida', 'error');
                 console.error(error);
             }
         }
@@ -2032,7 +1954,6 @@
                 if (response.ok) {
                     const procedures = await response.json();
                     displayProcedures(procedures);
-                    updateProcedureSelect();
                 }
             } catch (error) {
                 console.error('Error loading procedures:', error);
@@ -2078,12 +1999,6 @@
             }).join('');
         }
 
-        function updateProcedureSelect() {
-            const select = document.getElementById('procHealthRecord');
-            // This would be populated from health records
-        }
-
-        // Utility Functions
         function showAlert(message, type = 'info') {
             const alertContainer = document.getElementById('alertContainer');
             const icons = {
@@ -2116,7 +2031,6 @@
             location.reload();
         }
 
-        // Initialize
         init();
     </script>
 </body>
