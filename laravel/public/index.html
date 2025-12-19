@@ -869,7 +869,7 @@
                 <div class="card">
                     <div class="card-title"><i class="fas fa-paw"></i> Augintiniai</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">0</div>
+                        <div id="statPets" style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Registruoti augintiniai</p>
                     </div>
                 </div>
@@ -877,7 +877,7 @@
                 <div class="card">
                     <div class="card-title"><i class="fas fa-heartbeat"></i> Sveikata</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">0</div>
+                        <div id="statHealth" style="font-size: 2.5rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Sveikatos įrašai</p>
                     </div>
                 </div>
@@ -885,7 +885,7 @@
                 <div class="card">
                     <div class="card-title"><i class="fas fa-clipboard-list"></i> Procedūros</div>
                     <div style="margin-top: 1rem;">
-                        <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">0</div>
+                        <div id="statProcedures" style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">0</div>
                         <p style="color: var(--text-secondary);">Numatytos procedūros</p>
                     </div>
                 </div>
@@ -1133,7 +1133,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2><i class="fas fa-sign-in-alt"></i> Prisijungti</h2>
-                <button class="modal-close" data-modal="loginModal">
+                <button class="modal-close" type="button" data-modal="loginModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1164,7 +1164,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2><i class="fas fa-user-plus"></i> Registracija</h2>
-                <button class="modal-close" data-modal="registerModal">
+                <button class="modal-close" type="button" data-modal="registerModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1208,7 +1208,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2><i class="fas fa-user-edit"></i> Redaguoti profilį</h2>
-                <button class="modal-close" data-modal="userProfileModal">
+                <button class="modal-close" type="button" data-modal="userProfileModal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -1246,6 +1246,7 @@
         let currentUserRole = null;
         let allPets = [];
         let allHealthRecords = [];
+        let allProcedures = [];
 
         function init() {
             setupEventListeners();
@@ -1263,11 +1264,17 @@
             document.getElementById('btnRegister').addEventListener('click', () => openModal('registerModal'));
 
             document.querySelectorAll('.modal-close').forEach(btn => {
-                btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal-close').dataset.modal));
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    closeModal(e.target.closest('.modal-close').dataset.modal);
+                });
             });
 
             document.querySelectorAll('.modal-footer [data-modal]').forEach(btn => {
-                btn.addEventListener('click', (e) => closeModal(e.target.dataset.modal));
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    closeModal(e.target.dataset.modal);
+                });
             });
 
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
@@ -1560,9 +1567,16 @@
 
         async function loadUserData() {
             if (!authToken) return;
-            loadPets();
-            loadHealthRecords();
-            loadProcedures();
+            await loadPets();
+            await loadHealthRecords();
+            await loadProcedures();
+            updateStatistics();
+        }
+
+        function updateStatistics() {
+            document.getElementById('statPets').textContent = allPets.length;
+            document.getElementById('statHealth').textContent = allHealthRecords.length;
+            document.getElementById('statProcedures').textContent = allProcedures.length;
         }
 
         async function loadAllUsers() {
@@ -1639,10 +1653,12 @@
                 if (response.ok) {
                     allPets = await response.json();
                     displayPets(allPets);
+                    return allPets;
                 }
             } catch (error) {
                 console.error('Error loading pets:', error);
             }
+            return [];
         }
 
         function displayPets(pets) {
@@ -1734,12 +1750,14 @@
                     showAlert(petId ? 'Augintinis atnaujintas!' : 'Augintinis pridėtas!', 'success');
                     document.getElementById('addPetSection').style.display = 'none';
                     document.getElementById('addPetForm').reset();
-                    loadPets();
+                    await loadPets();
+                    updateStatistics();
                 } else {
-                    showAlert('Klaida', 'error');
+                    const error = await response.json();
+                    showAlert(error.error || 'Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida', 'error');
+                showAlert('Klaida: ' + error.message, 'error');
                 console.error(error);
             }
         }
@@ -1755,7 +1773,8 @@
 
                 if (response.ok) {
                     showAlert('Augintinis ištrintas', 'success');
-                    loadPets();
+                    await loadPets();
+                    updateStatistics();
                 }
             } catch (error) {
                 showAlert('Klaida trinant augintinį', 'error');
@@ -1789,13 +1808,18 @@
                 if (response.ok) {
                     allHealthRecords = await response.json();
                     displayHealthRecords(allHealthRecords);
+                    updateStatistics();
                     if (petId) {
-                        document.querySelector('html, body').scrollTop = document.getElementById('health').offsetTop;
+                        setTimeout(() => {
+                            document.getElementById('health').scrollIntoView({ behavior: 'smooth' });
+                        }, 100);
                     }
+                    return allHealthRecords;
                 }
             } catch (error) {
                 console.error('Error loading health records:', error);
             }
+            return [];
         }
 
         function displayHealthRecords(records) {
@@ -1853,8 +1877,8 @@
             }
 
             const health = {
-                pet_id: document.getElementById('healthPet').value,
-                weight: document.getElementById('healthWeight').value || null,
+                pet_id: parseInt(document.getElementById('healthPet').value),
+                weight: document.getElementById('healthWeight').value ? parseFloat(document.getElementById('healthWeight').value) : null,
                 vaccines: document.getElementById('healthVaccines').value || null,
                 illness_history: document.getElementById('healthIllness').value || null,
                 recommendations: document.getElementById('healthRecommendations').value || null
@@ -1874,12 +1898,14 @@
                     showAlert('Sveikatos įrašas pridėtas!', 'success');
                     document.getElementById('addHealthSection').style.display = 'none';
                     document.getElementById('addHealthForm').reset();
-                    loadHealthRecords();
+                    await loadHealthRecords();
+                    updateStatistics();
                 } else {
-                    showAlert('Klaida', 'error');
+                    const error = await response.json();
+                    showAlert(error.error || 'Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida', 'error');
+                showAlert('Klaida: ' + error.message, 'error');
                 console.error(error);
             }
         }
@@ -1912,11 +1938,11 @@
             }
 
             const procedure = {
-                health_record_id: document.getElementById('procHealthRecord').value,
+                health_record_id: parseInt(document.getElementById('procHealthRecord').value),
                 title: document.getElementById('procTitle').value,
                 description: document.getElementById('procDescription').value || null,
                 scheduled_at: document.getElementById('procDate').value || null,
-                status: document.getElementById('procStatus').value
+                status: document.getElementById('procStatus').value || 'planned'
             };
 
             try {
@@ -1933,12 +1959,14 @@
                     showAlert('Procedūra pridėta!', 'success');
                     document.getElementById('addProcedureSection').style.display = 'none';
                     document.getElementById('addProcedureForm').reset();
-                    loadProcedures();
+                    await loadProcedures();
+                    updateStatistics();
                 } else {
-                    showAlert('Klaida', 'error');
+                    const error = await response.json();
+                    showAlert(error.error || 'Klaida', 'error');
                 }
             } catch (error) {
-                showAlert('Klaida', 'error');
+                showAlert('Klaida: ' + error.message, 'error');
                 console.error(error);
             }
         }
@@ -1952,12 +1980,15 @@
                 });
 
                 if (response.ok) {
-                    const procedures = await response.json();
-                    displayProcedures(procedures);
+                    allProcedures = await response.json();
+                    displayProcedures(allProcedures);
+                    updateStatistics();
+                    return allProcedures;
                 }
             } catch (error) {
                 console.error('Error loading procedures:', error);
             }
+            return [];
         }
 
         function displayProcedures(procedures) {
@@ -2018,7 +2049,8 @@
             alertContainer.appendChild(alert);
 
             setTimeout(() => {
-                alert.style.animation = 'fadeOut 0.3s ease-out';
+                alert.style.opacity = '0';
+                alert.style.transition = 'opacity 0.3s ease-out';
                 setTimeout(() => alert.remove(), 300);
             }, 4000);
         }
@@ -2027,6 +2059,9 @@
             authToken = null;
             currentUser = null;
             currentUserRole = null;
+            allPets = [];
+            allHealthRecords = [];
+            allProcedures = [];
             localStorage.removeItem('auth_token');
             location.reload();
         }
