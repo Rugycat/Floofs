@@ -1869,64 +1869,46 @@
         }
 
         async function handleAddHealth(e) {
-    e.preventDefault();
-    
-    if (currentUserRole !== 'vet' && currentUserRole !== 'admin') {
-        showAlert('Tik veterinarai gali įvesti sveikatos duomenis', 'error');
-        return;
-    }
+            e.preventDefault();
+            
+            if (currentUserRole !== 'vet' && currentUserRole !== 'admin') {
+                showAlert('Tik veterinarai gali įvesti sveikatos duomenis', 'error');
+                return;
+            }
 
-    const healthPetValue = document.getElementById('healthPet').value;
-    if (!healthPetValue) {
-        showAlert('Prašome pasirinkti augintinį', 'error');
-        return;
-    }
+            const health = {
+                pet_id: parseInt(document.getElementById('healthPet').value),
+                weight: document.getElementById('healthWeight').value ? parseFloat(document.getElementById('healthWeight').value) : null,
+                vaccines: document.getElementById('healthVaccines').value || null,
+                illness_history: document.getElementById('healthIllness').value || null,
+                recommendations: document.getElementById('healthRecommendations').value || null
+            };
 
-    const health = {
-        pet_id: parseInt(healthPetValue),
-        weight: document.getElementById('healthWeight').value ? parseFloat(document.getElementById('healthWeight').value) : null,
-        vaccines: document.getElementById('healthVaccines').value || null,
-        illness_history: document.getElementById('healthIllness').value || null,
-        recommendations: document.getElementById('healthRecommendations').value || null
-    };
+            try {
+                const response = await fetch(`${API_URL}/health-records`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(health)
+                });
 
-    try {
-        const response = await fetch(`${API_URL}/health-records`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify(health)
-        });
-
-        const contentType = response.headers.get('content-type');
-        let data;
-
-        // Only try to parse JSON if response is actually JSON
-        if (contentType && contentType.includes('application/json')) {
-            data = await response.json();
-        } else {
-            // If not JSON, read as text
-            const text = await response.text();
-            console.error('Non-JSON response:', text);
-            data = { error: 'Invalid response from server' };
+                if (response.ok) {
+                    showAlert('Sveikatos įrašas pridėtas!', 'success');
+                    document.getElementById('addHealthSection').style.display = 'none';
+                    document.getElementById('addHealthForm').reset();
+                    await loadHealthRecords();
+                    updateStatistics();
+                } else {
+                    const error = await response.json();
+                    showAlert(error.error || 'Klaida', 'error');
+                }
+            } catch (error) {
+                showAlert('Klaida: ' + error.message, 'error');
+                console.error(error);
+            }
         }
-
-        if (response.ok) {
-            showAlert('Sveikatos įrašas pridėtas!', 'success');
-            document.getElementById('addHealthSection').style.display = 'none';
-            document.getElementById('addHealthForm').reset();
-            await loadHealthRecords();
-            updateStatistics();
-        } else {
-            const errorMessage = data.error || data.message || 'Nežinoma klaida';
-            showAlert(errorMessage, 'error');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showAlert('Klaida: ' + error.message, 'error');
-    }
 
         async function loadHealthRecordsForProcedure() {
             if (!authToken) return;
